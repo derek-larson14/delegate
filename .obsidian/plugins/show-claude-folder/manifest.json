@@ -1,0 +1,9 @@
+{
+    "id": "show-claude-folder",
+    "name": "Show .claude Folder",
+    "version": "1.0.0",
+    "minAppVersion": "0.15.0",
+    "description": "Makes the .claude folder visible in Obsidian file explorer",
+    "author": "Derek Larson",
+    "isDesktopOnly": false
+}

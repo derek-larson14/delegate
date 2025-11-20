@@ -1,0 +1,9 @@
+{
+    "id": "task-archiver",
+    "name": "Task Archiver",
+    "version": "1.0.0",
+    "minAppVersion": "0.15.0",
+    "description": "Automatically moves completed tasks to an archive file",
+    "author": "Derek Larson",
+    "isDesktopOnly": false
+}

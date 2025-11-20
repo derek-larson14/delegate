@@ -42,10 +42,24 @@ Notes: Building AI dev tools, looking for design talent
 
 Run `/network` to find who can help with current projects.
 
-## Optional: Better Editors
+## Using with Obsidian (Recommended)
 
-**Obsidian** - Visual markdown editor with linking
-**Cursor** - AI code editor that plays nice with Claude Code
+The repo includes pre-configured Obsidian plugins for a better experience:
+
+**Pre-loaded plugins:**
+- **Terminal Launcher** - Quick launch terminal in your vault folder
+- **Show .claude Folder** - Makes `.claude/` visible in Obsidian's file explorer
+- **Task Archiver** - Automatically archive completed tasks
+
+**Setup:**
+1. [Download Obsidian](https://obsidian.md) (free)
+2. Open this folder as a vault in Obsidian (File → Open folder as vault)
+3. When prompted about community plugins, click "Trust author and enable plugins"
+4. The plugins are now active - you can launch terminal, see .claude folder, and use task archiving
+
+The `.obsidian/` folder contains only the plugin files and the community-plugins list. Everything else (themes, hotkeys, layouts) uses Obsidian defaults so you can customize however you want.
+
+**Or use Cursor** - AI code editor that plays nice with Claude Code
 
 ## Customizing
 
@@ -72,6 +86,9 @@ Run `/network` to find who can help with current projects.
 ```
 feed-the-beast/
 ├── .claude/commands/      # Slash commands
+├── .obsidian/            # Pre-configured Obsidian plugins
+│   ├── plugins/          # Plugin files (terminal, .claude visibility, task archiving)
+│   └── community-plugins.json
 ├── tasks.md               # Your tasks
 ├── roadmap.md            # Goals and deadlines
 ├── outreach.md           # Outreach tracking

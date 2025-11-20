@@ -1,0 +1,9 @@
+{
+	"id": "terminal-launcher",
+	"name": "Terminal Launcher",
+	"version": "1.0.0",
+	"minAppVersion": "0.15.0",
+	"description": "Quick launch a terminal in your vault folder",
+	"author": "Derek Larson",
+	"isDesktopOnly": true
+}
