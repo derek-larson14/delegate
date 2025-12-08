@@ -2,10 +2,11 @@
 
 Text files and slash commands for running operations with AI.
 
-Drop this folder on your computer. Replace the placeholder content. Run commands.
+Add this folder on your computer. Replace the placeholder content. Run commands.
 
 - `/daily` - What should I focus on today?
 - `/weekly` - Review the week, plan what's next
+- `/voice` - Process voice notes into tasks, ideas, file edits
 - `/network` - Who in my network can help with current projects?
 - `/outreach` - Draft outreach messages
 - `/push` - Auto-commit and push changes
@@ -19,7 +20,7 @@ From ["Feed the Beast: AI eats software"](https://dtlarson.com/feed-the-beast).
 3. Unzip somewhere, rename to `operations` (or whatever you'd like)
 4. Open terminal, navigate to folder: `cd path/to/folder`
 5. Type `claude` and hit enter
-6. Run `/daily` to test it works
+6. Run `/daily` or ask a question to test it works
 
 ## Replace the Example Content
 
@@ -29,6 +30,15 @@ The folder has placeholder files:
 - `CLAUDE.md` - Context about your work
 - `outreach.md` - People you're reaching out to
 - `network.md` - Your network (optional)
+- `voice.md` - Where voice notes land (see below)
+
+## Voice Notes
+
+You can dictate your thoughts into `voice.md` before they disappear, without worrying about where to put them in your documents. 
+
+Then, run `/voice` later and Claude routes the ideas into the right files.
+
+I use [Wispr Flow](https://wisprflow.ai/) on desktop and Apple's dictation feature on iOS, but any dictation tool works. 
 
 ## Network Search (Optional)
 
@@ -63,23 +73,11 @@ The `.obsidian/` folder contains only the plugin files and the community-plugins
 
 ## Customizing
 
-1. **Change questions** - Edit commands to ask what matters to you
+1. **Change Commands** - Edit commands to ask what matters to you
 2. **Add commands** - Create new `.md` files in `.claude/commands/`
 3. **Adjust paths** - Update file references if you organize differently
+4. **Update `CLAUDE.md`** - include context about file structure, and your work
 
-## Tips
-
-### Start Simple
-- Begin with `/daily` and just tasks.md
-- Add more files as you go
-
-### Keep Files Updated
-- The more context in your files, the better Claude works
-- Update CLAUDE.md with specifics about your work
-
-### Improve Commands
-- After using a command, ask: "What would make this better?"
-- Edit the files in `.claude/commands/` directly
 
 ## File Structure
 
@@ -93,6 +91,7 @@ feed-the-beast/
 ├── roadmap.md            # Goals and deadlines
 ├── outreach.md           # Outreach tracking
 ├── network.md            # Your network (optional)
+├── voice.md              # Voice notes inbox
 ├── CLAUDE.md             # Context for Claude
 └── logs/                 # Review logs
 ```
