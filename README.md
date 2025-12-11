@@ -7,6 +7,7 @@ Add this folder on your computer. Replace the placeholder content. Run commands.
 - `/daily` - What should I focus on today?
 - `/weekly` - Review the week, plan what's next
 - `/voice` - Process voice notes into tasks, ideas, file edits
+- `/meeting` - Search meeting notes, extract action items
 - `/network` - Who in my network can help with current projects?
 - `/outreach` - Draft outreach messages
 - `/push` - Auto-commit and push changes
@@ -39,6 +40,23 @@ You can dictate your thoughts into `voice.md` before they disappear, without wor
 Then, run `/voice` later and Claude routes the ideas into the right files.
 
 I use [Wispr Flow](https://wisprflow.ai/) on desktop and Apple's dictation feature on iOS, but any dictation tool works. 
+
+## Meeting Notes (Optional)
+
+Sync your meeting notes to the `meetings/` folder and search them with `/meeting`.
+
+**With Granola (recommended):**
+1. In Obsidian: Settings → Community Plugins → Browse → "Granola Sync"
+2. Install and enable
+3. Set folder path to `meetings/`
+4. Your Granola notes sync automatically
+
+**Manual:** Drop any meeting notes as markdown files in `meetings/`. Name them descriptively (e.g., `2024-12-10-sarah-roadmap.md`).
+
+Then ask:
+```
+/meeting what were the action items from my call with Sarah?
+```
 
 ## Network Search (Optional)
 
@@ -87,6 +105,7 @@ feed-the-beast/
 ├── .obsidian/            # Pre-configured Obsidian plugins
 │   ├── plugins/          # Plugin files (terminal, .claude visibility, task archiving)
 │   └── community-plugins.json
+├── meetings/             # Meeting notes (Granola sync or manual)
 ├── tasks.md               # Your tasks
 ├── roadmap.md            # Goals and deadlines
 ├── outreach.md           # Outreach tracking
