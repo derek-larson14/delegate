@@ -1,3 +1,7 @@
+---
+description: Weekly review as chief of staff
+---
+
 # Weekly Review
 
 ## Phase 1: Mechanical Review

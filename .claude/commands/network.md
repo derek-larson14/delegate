@@ -1,3 +1,7 @@
+---
+description: Search your network for relevant connections
+---
+
 # Network Search Command
 
 You are searching the user's network to identify relevant connections based on what they're currently working on and need help with.

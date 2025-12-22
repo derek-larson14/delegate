@@ -1,3 +1,7 @@
+---
+description: Search and summarize meeting notes
+---
+
 User is asking about a meeting: $ARGUMENTS
 
 Search for relevant meetings in the meetings/ folder by:

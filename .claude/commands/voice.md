@@ -8,26 +8,24 @@ Read `/voice.md` and process any new voice entries.
 
 ## Processing Flow
 
-1. **Parse entries** - Each entry is separated by `--` and starts with a timestamp
+1. **Parse entries** - Each entry is separated by `--` and may start with a timestamp. Text is dictated, so interpret intent rather than literal words.
 
 2. **Classify each entry** as one of:
-   - **Task**: Add to `tasks.md` (keywords: "add task", "todo", "remind me to", "I need to")
-   - **File edit**: Make changes to a specific file (keywords: "update", "change", "edit", "add to [filename]")
-   - **Question**: Something to answer or research
-   - **Note**: Just capturing a thought, no action needed
+   - **Task**: Add to `tasks.md`
+   - **File edit**: Make changes to a specific file
+   - **Idea**: A thought that belongs somewhere - route to the right project folder/file
    - **Ambiguous**: Not clear what action to take
 
 3. **Execute actions**:
    - For tasks: Add to the appropriate section in `tasks.md`
    - For file edits: Make the requested changes
-   - For questions: Provide an answer or note what research is needed
-   - For notes: Just acknowledge
+   - For ideas: Find the proper place to route them
    - For ambiguous: Ask for clarification before acting
-   - Preserve the user's voice while cleaning up grammar/spelling (text is dictated)
+   - Preserve the user's voice while cleaning up grammar/spelling
    - If something is confusing, check other files for context before routing
 
 4. **Archive processed entries**:
-   - Append processed entries to `archive/voice-archive.md` with processing timestamp
+   - Append processed entries to `archive/voice-archive.md` with processing timestamp and note about where you routed them
    - Clear `voice.md` after processing
 
 5. **Report what was done**:
@@ -44,6 +42,8 @@ Scan your workspace before routing. Common patterns:
 When unclear where something goes, check folder names and existing files first.
 
 ## Important
-- Be conservative - when in doubt, ask
+- **Capture EVERYTHING coherent** - A single voice note often contains multiple distinct ideas. Don't just grab the main point - extract every sub-idea, detail, and nuance.
+- One entry may need to be split across multiple files (e.g., a task + an idea + a project note)
+- When in doubt, add it somewhere rather than skip it
 - Transcription errors are common - interpret intent, not literal words
 - If an entry is just noise/testing, archive without action
