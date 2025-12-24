@@ -10,6 +10,7 @@ Add this folder on your computer. Replace the placeholder content. Run commands.
 - `/meeting` - Search meeting notes, extract action items
 - `/network` - Who in my network can help with current projects?
 - `/outreach` - Draft outreach messages
+- `/feedback` - Run parallel AI reviewers that use your reference library
 - `/push` - Auto-commit and push changes
 
 From ["Feed the Beast: AI eats software"](https://dtlarson.com/feed-the-beast). Learn more at [Delegate with Claude](https://delegatewithclaude.com).
