@@ -4,19 +4,27 @@ description: Process voice notes from voice.md and execute actions
 
 # Voice Notes Processor
 
-Read `/voice.md` and process any new voice entries.
+Read voice notes from these locations:
+1. **`/voice.md`** - Desktop input (cleared after processing)
+2. **`~/Library/Mobile Documents/com~apple~CloudDocs/voice-icloud.md`** - iPhone capture via iCloud (accumulates, deduplicated)
+
+Check both files. If a file doesn't exist or is empty, skip it.
 
 ## Processing Flow
 
-1. **Parse entries** - Each entry is separated by `--` and may start with a timestamp. Text is dictated, so interpret intent rather than literal words.
+1. **Parse entries by source**:
+   - **voice.md (desktop)**: Process all entries - this file gets cleared after each run
+   - **voice-icloud.md (phone)**: Check each entry against `archive/voice-archive.md`. Match by timestamp and content. Skip entries already archived - only process NEW entries.
 
-2. **Classify each entry** as one of:
+2. **Parse entry content** - Entries are separated by `--` and may start with a timestamp. Text is dictated, so interpret intent rather than literal words.
+
+3. **Classify each entry** as one of:
    - **Task**: Add to `tasks.md`
    - **File edit**: Make changes to a specific file
    - **Idea**: A thought that belongs somewhere - route to the right project folder/file
    - **Ambiguous**: Not clear what action to take
 
-3. **Execute actions**:
+4. **Execute actions**:
    - For tasks: Add to the appropriate section in `tasks.md`
    - For file edits: Make the requested changes
    - For ideas: Find the proper place to route them
@@ -24,11 +32,11 @@ Read `/voice.md` and process any new voice entries.
    - Preserve the user's voice while cleaning up grammar/spelling
    - If something is confusing, check other files for context before routing
 
-4. **Archive processed entries**:
+5. **Archive processed entries**:
    - Append processed entries to `archive/voice-archive.md` with processing timestamp and note about where you routed them
-   - Clear `voice.md` after processing
+   - **Only clear `voice.md`** - never clear the iCloud file (it accumulates and gets deduplicated)
 
-5. **Report what was done**:
+6. **Report what was done**:
    - List each entry and what action was taken
    - Ask clarifying questions for anything ambiguous
 
