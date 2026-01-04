@@ -5,6 +5,6 @@ Thinking about that conversation with Marcus. He made a good point about how the
 
 --
 Dec 15, 2025 at 11:45 PM
-Had a thought about the pricing - what if we did a pay what you want tier? Feels risky but also might build goodwill. Or maybe thats naive idk. Also need to look into whether venmo works for international payments or if we need something else. stripe probably.
+Had a thought about the pricing - what if we did a pay what you want tier? Feels risky but also might build goodwill. Or maybe thats naive idk. Also need to look into how stripe works for international payments or if we need something else.
 
 --
