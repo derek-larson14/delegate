@@ -2,8 +2,6 @@
 
 Text files and slash commands for running operations with AI.
 
-Add this folder on your computer. Replace the placeholder content. Run commands.
-
 - `/daily` - What should I focus on today?
 - `/weekly` - Review the week, plan what's next
 - `/voice` - Process voice notes into tasks, ideas, file edits
@@ -42,7 +40,7 @@ Then, run `/voice` later and Claude routes the ideas into the right files.
 
 I use [Wispr Flow](https://wisprflow.ai/) on desktop and Apple's dictation feature on iOS, but any dictation tool works. 
 
-## Meeting Notes (Optional)
+## Meeting Notes
 
 Sync your meeting notes to the `meetings/` folder and search them with `/meeting`.
 
@@ -59,7 +57,7 @@ Then ask:
 /meeting what were the action items from my call with Sarah?
 ```
 
-## Network Search (Optional)
+## Network Search
 
 Add people to `network.md`:
 ```markdown
