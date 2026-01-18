@@ -124,4 +124,4 @@ feed-the-beast/
 
 By Derek Larson. From ["Feed the Beast: AI eats software"](https://dtlarson.com/feed-the-beast).
 
-MIT License.
+[Back to the original repo](https://github.com/derek-larson14/feed-the-beast) | MIT License.
