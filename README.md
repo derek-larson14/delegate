@@ -7,7 +7,7 @@ Text files and slash commands for running operations with AI.
 - `/voice` - Process voice notes into tasks, ideas, file edits
 - `/meeting` - Search meeting notes, extract action items
 - `/network` - Who in my network can help with current projects?
-- `/outreach` - Draft outreach messages
+- `/calendar` - Check your schedule, find open slots (Mac only)
 - `/editors` - Run parallel AI reviewers that use your reference library
 - `/push` - Auto-commit and push changes
 
@@ -28,7 +28,6 @@ The folder has placeholder files:
 - `tasks.md` - Your tasks
 - `roadmap.md` - Your goals and deadlines
 - `CLAUDE.md` - Context about your work
-- `outreach.md` - People you're reaching out to
 - `network.md` - Your network (optional)
 - `voice.md` - Where voice notes land (see below)
 
@@ -107,7 +106,6 @@ feed-the-beast/
 ├── meetings/             # Meeting notes (Granola sync or manual)
 ├── tasks.md               # Your tasks
 ├── roadmap.md            # Goals and deadlines
-├── outreach.md           # Outreach tracking
 ├── network.md            # Your network (optional)
 ├── voice.md              # Voice notes inbox
 ├── CLAUDE.md             # Context for Claude
