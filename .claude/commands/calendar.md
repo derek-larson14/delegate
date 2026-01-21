@@ -139,3 +139,4 @@ date -v+friday "+%Y-%m-%d"
 - Be concise - show relevant events, not raw output dumps
 - For availability questions, identify gaps and suggest specific times
 - For busy weeks, summarize the load before listing everything
+- No events returned = you're free that period. Say so explicitly ("You're free Thursday" not just "No events found")
