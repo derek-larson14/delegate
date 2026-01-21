@@ -131,22 +131,17 @@ rclone copy gdrive:Taxes/2024 ./downloads/taxes-2024 -P
 
 ## Multiple Accounts (Optional)
 
-If you have multiple Google accounts (e.g., work and personal), you can add more remotes:
+If the user wants to add another Google Drive account:
+
+1. Ask what they want to name it (e.g., "work", "personal", "company")
+2. Run the command to add it - this opens the browser automatically:
 
 ```bash
-# Add a second account
-rclone config create work drive scope drive.readonly
+rclone config create <name> drive scope drive.readonly
 ```
 
-This opens the browser for OAuth. Once configured, use `work:` instead of `gdrive:`:
-
-```bash
-# List work drive
-rclone lsd work:
-
-# Search work drive
-rclone lsf work: -R | grep -i "search term"
-```
+3. Tell them: "I'll open your browser - choose the Google account you want to add and allow access."
+4. Once done, confirm it worked by listing the new drive.
 
 When the user mentions a specific account (e.g., "work drive", "personal drive"), use the appropriate remote. If unclear which account, ask.
 
