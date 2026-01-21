@@ -8,6 +8,7 @@ Text files and slash commands for running operations with AI.
 - `/meeting` - Search meeting notes, extract action items
 - `/network` - Who in my network can help with current projects?
 - `/calendar` - Check your schedule, find open slots (Mac only)
+- `/drive` - Browse, search, and download from Google Drive
 - `/editors` - Run parallel AI reviewers that use your reference library
 - `/push` - Auto-commit and push changes
 
