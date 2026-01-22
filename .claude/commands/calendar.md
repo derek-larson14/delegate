@@ -18,7 +18,18 @@ which icalBuddy
 
 If not found, ask: "icalBuddy isn't installed. Should I install it?"
 
-If yes: `brew install ical-buddy` (install brew first if needed)
+If yes:
+1. First check if Homebrew is installed: `which brew`
+2. If Homebrew is missing, install it:
+   ```bash
+   # Download the installer (avoids line-break issues with the one-liner)
+   curl -fsSL -o /tmp/homebrew-install.sh https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh
+   # Run it
+   /bin/bash /tmp/homebrew-install.sh
+   ```
+   After Homebrew installs, it shows "Next steps" - run those commands (they add brew to PATH).
+   Then verify with `brew --version`.
+3. Once Homebrew works: `brew install ical-buddy`
 
 **Step 2: Test calendar access**
 
@@ -28,9 +39,17 @@ After installing (or if already installed), run:
 icalBuddy calendars
 ```
 
-If you see "error: No calendars." this means Terminal needs calendar permission. Tell the user:
+If you see "error: No calendars." this means the app running Claude needs calendar permission. Tell the user:
 
-"Your terminal needs calendar permission. Go to System Settings → Privacy & Security → Calendar, and check the box next to Terminal (or your terminal app). Then try `/calendar` again."
+Calendar permission needed. Go to **System Settings → Privacy & Security → Calendars** and enable:
+- **Obsidian** (if you're running Claude from Obsidian)
+- **Terminal** (if you're running Claude from Terminal)
+
+If permission is already enabled but it's still not working, the permission entry might be corrupted. Run this in Terminal to reset Obsidian's calendar permission:
+```
+tccutil reset Calendar md.obsidian
+```
+Then try `/calendar` again and click Allow when macOS prompts.
 
 If it lists calendars, you're good to proceed with their question.
 
