@@ -1,6 +1,6 @@
 # Feed the Beast
 
-Text files and slash commands for running operations with AI.
+Text files and slash commands for running your life with AI.
 
 - `/daily` - What should I focus on today?
 - `/weekly` - Review the week, plan what's next
@@ -12,13 +12,13 @@ Text files and slash commands for running operations with AI.
 - `/editors` - Run parallel AI reviewers that use your reference library
 - `/push` - Auto-commit and push changes
 
-From ["Feed the Beast: AI eats software"](https://dtlarson.com/feed-the-beast). Learn more at [Delegate with Claude](https://delegatewithclaude.com).
+From ["Feed the Beast: AI eats software."](https://dtlarson.com/feed-the-beast) Learn more at [Delegate with Claude](https://delegatewithclaude.com).
 
 ## Setup
 
 1. [Install Claude Code](https://claude.com/claude-code) ($20/month minimum)
 2. Download this folder (green button → Download ZIP)
-3. Unzip somewhere, rename to `operations` (or whatever you'd like)
+3. Unzip somewhere, rename, or move to where you prefer
 4. Open terminal, navigate to folder: `cd path/to/folder`
 5. Type `claude` and hit enter
 6. Run `/daily` or ask a question to test it works
