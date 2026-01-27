@@ -31,105 +31,26 @@ The folder has placeholder files:
 - `roadmap.md` - Your goals and deadlines
 - `CLAUDE.md` - Context about your work
 - `network.md` - Your network (optional)
-- `voice.md` - Where voice notes land (see below)
-
-## Voice Notes
-
-You can dictate your thoughts into `voice.md` before they disappear, without worrying about where to put them in your documents. 
-
-Then, run `/voice` later and Claude routes the ideas into the right files.
-
-I use [Wispr Flow](https://wisprflow.ai/) on desktop and Apple's dictation feature on iOS, but any dictation tool works. 
-
-## Meeting Notes
-
-Sync your meeting notes to the `meetings/` folder and search them with `/meeting`.
-
-**With Granola (recommended):**
-1. In Obsidian: Settings → Community Plugins → Browse → "Granola Sync"
-2. Install and enable
-3. Set folder path to `meetings/`
-4. Your Granola notes sync automatically
-
-**Manual:** Drop any meeting notes as markdown files in `meetings/`. Name them descriptively (e.g., `2024-12-10-sarah-roadmap.md`).
-
-Then ask:
-```
-/meeting what were the action items from my call with Sarah?
-```
-
-## Network Search
-
-Add people to `network.md`:
-```markdown
-## Jane Smith
-VP Engineering @ TechStartup Inc
-jane@techstartup.com
-Notes: Building AI dev tools, looking for design talent
-```
-
-Run `/network` to find who can help with current projects.
+- `voice.md` - Where voice notes land
 
 ## Using with Obsidian (Recommended)
 
-The repo includes pre-configured Obsidian plugins for a better experience:
-
-**Pre-loaded plugins:**
-- **Terminal Launcher** - Quick launch terminal in your vault folder
-- **Show .claude Folder** - Makes `.claude/` visible in Obsidian's file explorer
-- **Task Archiver** - Automatically archive completed tasks
-
-**Setup:**
 1. [Download Obsidian](https://obsidian.md) (free)
-2. Open this folder as a vault in Obsidian (File → Open folder as vault)
-3. When prompted about community plugins, click "Trust author and enable plugins"
-4. The plugins are now active - you can launch terminal, see .claude folder, and use task archiving
+2. Open this folder as a vault (File → Open folder as vault)
+3. Trust plugins when prompted
 
-The `.obsidian/` folder contains only the plugin files and the community-plugins list. Everything else (themes, hotkeys, layouts) uses Obsidian defaults so you can customize however you want.
-
-See: [Obsidian Claude Sidebar](https://github.com/derek-larson14/obsidian-claude-sidebar) to run Claude Code from Obsidian. 
-
-**Or use Cursor** - AI code editor that plays nice with Claude Code
+The repo includes pre-configured plugins. See [Claude Sidebar](https://github.com/derek-larson14/obsidian-claude-sidebar) to run Claude from Obsidian.
 
 ## Customizing
 
-1. **Change Commands** - Edit commands to ask what matters to you
-2. **Add commands** - Create new `.md` files in `.claude/commands/`
-3. **Adjust paths** - Update file references if you organize differently
-4. **Update `CLAUDE.md`** - include context about file structure, and your work
+- **Edit commands** - Modify `.claude/commands/*.md` to fit your workflow
+- **Add commands** - Create new `.md` files in `.claude/commands/`
+- **Update CLAUDE.md** - Add context about your work and file structure
 
-## Keeping Commands Updated
+## Updates
 
-Run `/update` to pull the latest commands and scripts from GitHub. It will:
-- Add new commands and scripts that have been released
-- Let you merge updates or keep your version
-- Never touch commands you created yourself
-
-## File Structure
-
-```
-feed-the-beast/
-├── .claude/commands/      # Slash commands
-├── .obsidian/            # Pre-configured Obsidian plugins
-│   ├── plugins/          # Plugin files (terminal, .claude visibility, task archiving)
-│   └── community-plugins.json
-├── meetings/             # Meeting notes (Granola sync or manual)
-├── tasks.md               # Your tasks
-├── roadmap.md            # Goals and deadlines
-├── network.md            # Your network (optional)
-├── voice.md              # Voice notes inbox
-├── CLAUDE.md             # Context for Claude
-└── logs/                 # Review logs
-```
-
-## For Developers
-
-- **MCP Integration**: Hook up calendar, Slack, email, Notion, etc. See [MCP docs](https://docs.claude.com/en/docs/claude-code/mcp).
-- **Automate**: [Schedule commands](https://docs.anthropic.com/en/docs/claude-code/github-actions), chain workflows, pull from APIs
-- **Extend**: This is just text files and prompts. Build whatever you need.
+Run `/update` to pull the latest commands from GitHub.
 
 ---
 
-By Derek Larson. From ["Feed the Beast: AI eats software"](https://dtlarson.com/feed-the-beast).
-
-[Back to the original repo](https://github.com/derek-larson14/feed-the-beast) | MIT License.
+By [Derek Larson](https://dtlarson.com). MIT License.
