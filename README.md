@@ -98,6 +98,12 @@ See: [Obsidian Claude Sidebar](https://github.com/derek-larson14/obsidian-claude
 3. **Adjust paths** - Update file references if you organize differently
 4. **Update `CLAUDE.md`** - include context about file structure, and your work
 
+## Keeping Commands Updated
+
+Run `/update` to pull the latest commands and scripts from GitHub. It will:
+- Add new commands and scripts that have been released
+- Let you merge updates or keep your version
+- Never touch commands you created yourself
 
 ## File Structure
 
