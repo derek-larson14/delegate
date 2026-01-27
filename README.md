@@ -1,6 +1,6 @@
 # Feed the Beast
 
-Text files and slash commands for running your life with AI.
+Text files and slash commands for running your life with Claude Code.
 
 - `/daily` - What should I focus on today?
 - `/weekly` - Review the week, plan what's next
@@ -85,6 +85,8 @@ The repo includes pre-configured Obsidian plugins for a better experience:
 4. The plugins are now active - you can launch terminal, see .claude folder, and use task archiving
 
 The `.obsidian/` folder contains only the plugin files and the community-plugins list. Everything else (themes, hotkeys, layouts) uses Obsidian defaults so you can customize however you want.
+
+See: [Obsidian Claude Sidebar](https://github.com/derek-larson14/obsidian-claude-sidebar) to run Claude Code from Obsidian. 
 
 **Or use Cursor** - AI code editor that plays nice with Claude Code
 
