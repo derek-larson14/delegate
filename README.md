@@ -2,15 +2,15 @@
 
 Text files and slash commands for running your life with Claude Code.
 
-- `/daily` - What should I focus on today?
+- `/morning` - What to focus on today
 - `/weekly` - Review the week, plan what's next
 - `/voice` - Process voice notes into tasks, ideas, file edits
-- `/meeting` - Search meeting notes, extract action items
-- `/network` - Who in my network can help with current projects?
-- `/calendar` - Check your schedule, find open slots (Mac only)
-- `/mail` - Read and search email from any provider (Mac only)
-- `/drive` - Browse, search, and download from Google Drive
-- `/editors` - Run parallel AI reviewers that use your reference library
+- `/meeting` - Ask questions about your meeting notes
+- `/messages` - Search messages across WhatsApp, iMessage, Slack, etc.
+- `/calendar` - Check schedule, find open time (Mac only)
+- `/mail` - Read and search email (Mac only)
+- `/drive` - Browse, search, download from Google Drive
+- `/editors` - Multiple AI reviewers critique your writing in parallel
 - `/push` - Auto-commit and push changes
 
 From ["Feed the Beast: AI eats software."](https://dtlarson.com/feed-the-beast) Learn more at [Delegate with Claude](https://delegatewithclaude.com).
@@ -22,7 +22,7 @@ From ["Feed the Beast: AI eats software."](https://dtlarson.com/feed-the-beast) 
 3. Unzip somewhere, rename, or move to where you prefer
 4. Open terminal, navigate to folder: `cd path/to/folder`
 5. Type `claude` and hit enter
-6. Run `/daily` or ask a question to test it works
+6. Run `/morning` or ask a question to test it works
 
 ## Replace the Example Content
 
@@ -30,7 +30,6 @@ The folder has placeholder files:
 - `tasks.md` - Your tasks
 - `roadmap.md` - Your goals and deadlines
 - `CLAUDE.md` - Context about your work
-- `network.md` - Your network (optional)
 - `voice.md` - Where voice notes land
 
 ## Using with Obsidian (Recommended)

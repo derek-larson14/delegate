@@ -4,19 +4,13 @@ description: Process voice notes from voice.md and execute actions
 
 # Voice Notes Processor
 
-Read voice notes from these locations:
-1. **`/voice.md`** - Desktop input (cleared after processing)
-2. **`~/Library/Mobile Documents/com~apple~CloudDocs/voice-icloud.md`** - iPhone capture via iCloud (accumulates, deduplicated)
-
-Check both files. If a file doesn't exist or is empty, skip it.
+Read voice notes from `/voice.md` and process them.
 
 ## Processing Flow
 
-1. **Parse entries by source**:
-   - **voice.md (desktop)**: Process all entries - this file gets cleared after each run
-   - **voice-icloud.md (phone)**: Check each entry against `archive/voice-archive.md`. Match by timestamp and content. Skip entries already archived - only process NEW entries.
+1. **Read voice.md** - If the file doesn't exist or is empty, let the user know.
 
-2. **Parse entry content** - Entries are separated by `--` and may start with a timestamp. Text is dictated, so interpret intent rather than literal words.
+2. **Parse entries** - Entries are separated by `--` and may start with a timestamp. Text is dictated, so interpret intent rather than literal words.
 
 3. **Classify each entry** as one of:
    - **Task**: Add to `tasks.md`
@@ -34,7 +28,7 @@ Check both files. If a file doesn't exist or is empty, skip it.
 
 5. **Archive processed entries**:
    - Append processed entries to `archive/voice-archive.md` with processing timestamp and note about where you routed them
-   - **Only clear `voice.md`** - never clear the iCloud file (it accumulates and gets deduplicated)
+   - Clear `voice.md` after processing
 
 6. **Report what was done**:
    - List each entry and what action was taken
