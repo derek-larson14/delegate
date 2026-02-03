@@ -8,6 +8,8 @@ allowed-tools: Bash, Read
 
 Access calendar data via icalBuddy (reads from Mac Calendar app, which syncs with Google Calendar, iCloud, etc).
 
+**Mac only.** If the user is on Windows or Linux, tell them: "/calendar uses a Mac-only tool. For calendar access, try [Rube](https://rube.app) which can connect to Google Calendar, Outlook, and other services."
+
 ## Setup (handle automatically)
 
 **Step 1: Check if icalBuddy is installed**
@@ -16,20 +18,10 @@ Access calendar data via icalBuddy (reads from Mac Calendar app, which syncs wit
 which icalBuddy
 ```
 
-If not found, ask: "icalBuddy isn't installed. Should I install it?"
-
-If yes:
-1. First check if Homebrew is installed: `which brew`
-2. If Homebrew is missing, install it:
-   ```bash
-   # Download the installer (avoids line-break issues with the one-liner)
-   curl -fsSL -o /tmp/homebrew-install.sh https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh
-   # Run it
-   /bin/bash /tmp/homebrew-install.sh
-   ```
-   After Homebrew installs, it shows "Next steps" - run those commands (they add brew to PATH).
-   Then verify with `brew --version`.
-3. Once Homebrew works: `brew install ical-buddy`
+If not found:
+1. Check if Homebrew exists: `which brew`
+2. If brew exists → run `brew install ical-buddy` yourself
+3. If no brew → tell user: "icalBuddy needs Homebrew. In Finder, open your workspace folder and double-click `SETUP.command` - it'll install Homebrew and the tools you need. Follow the prompts in the terminal window, then try `/calendar` again."
 
 **Step 2: Test calendar access**
 
@@ -159,3 +151,4 @@ date -v+friday "+%Y-%m-%d"
 - For availability questions, identify gaps and suggest specific times
 - For busy weeks, summarize the load before listing everything
 - No events returned = you're free that period. Say so explicitly ("You're free Thursday" not just "No events found")
+- Don't narrate for the sake of narrating - only when it's useful

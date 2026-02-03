@@ -143,7 +143,7 @@ cmd_status() {
     fi
 
     local resp=$(api GET "/v1/accounts" 2>&1)
-    if echo "$resp" | grep -qi "unauthorized"; then
+    if echo "$resp" | grep -qiE "unauthorized|no token"; then
         echo "BEEPER_UNAUTHORIZED"
         echo ""
         echo "Fix: Settings → Developers → '+' next to Approved connections → copy token"

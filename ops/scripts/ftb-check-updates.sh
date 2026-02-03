@@ -60,6 +60,20 @@ for f in .claude/commands/*.md; do
 done
 
 echo ""
+echo "=== SETUP FILES ==="
+
+# Check for SETUP.command
+if [[ -f "$EXTRACTED/SETUP.command" ]]; then
+    if [[ -f "SETUP.command" ]]; then
+        if ! diff -q "$EXTRACTED/SETUP.command" "SETUP.command" >/dev/null 2>&1; then
+            echo "CHANGED: SETUP.command"
+        fi
+    else
+        echo "NEW: SETUP.command"
+    fi
+fi
+
+echo ""
 echo "=== SCRIPTS ==="
 
 # Check upstream scripts

@@ -20,16 +20,9 @@ Access messages across all your chat platforms via Beeper Desktop API. Works wit
 which brew
 ```
 
-If brew exists, just install jq:
-```bash
-brew install jq
-```
+If brew exists → run `brew install jq` yourself, then re-run status.
 
-If no Homebrew, tell the user: "You need Homebrew to install jq. Run this in your terminal - it will ask for your password:"
-```
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-```
-Once they confirm Homebrew is installed, run `brew install jq` yourself, then re-run status.
+If no brew → tell user: "jq needs Homebrew. In Finder, open your workspace folder and double-click `SETUP.command` - it'll install Homebrew and the tools you need. Follow the prompts in the terminal window, then try `/messages` again."
 
 **If shows `BEEPER_CONNECTED`** → Ready. If user just said "/messages" with no specific request, ask: "What can I help you find in your messages?"
 
@@ -279,7 +272,7 @@ The Beeper Desktop API runs locally on your machine (localhost:23373). The token
 ## Troubleshooting
 
 **"BEEPER_NOT_INSTALLED" error:**
-- Beeper Desktop isn't on this Mac
+- Beeper Desktop isn't installed
 - User needs to install from https://beeper.com
 - After install, they connect their chat accounts (WhatsApp, etc.)
 - Then run `/messages` again
@@ -315,3 +308,4 @@ The Beeper Desktop API runs locally on your machine (localhost:23373). The token
 - For long message threads, summarize unless user asks for full content
 - If multiple matches, list options and ask which one to read
 - Always show chat IDs when the user might need them for follow-up commands
+- Don't narrate for the sake of narrating - only when it's useful

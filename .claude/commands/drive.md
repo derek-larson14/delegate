@@ -21,7 +21,9 @@ rclone listremotes 2>/dev/null | grep -q "^gdrive:" && echo "READY"
 **If not ready**, then handle setup:
 
 1. Check if rclone is installed: `which rclone`
-   - If not found, ask: "rclone isn't installed. Should I install it?" Then `brew install rclone`
+   - If not found, check if Homebrew exists: `which brew`
+   - If brew exists → run `brew install rclone` yourself
+   - If no brew → tell user: "rclone needs Homebrew. In Finder, open your workspace folder and double-click `SETUP.command` - it'll install Homebrew and the tools you need. Follow the prompts in the terminal window, then try `/drive` again."
 
 2. Check if the setup script exists. If not, download it:
 ```bash
@@ -192,3 +194,4 @@ Don't guess - always confirm when ambiguous.
 - For large listings, give counts and highlight what seems relevant
 - When downloading, confirm where files landed
 - If a path doesn't exist, suggest alternatives based on what you can see
+- Don't narrate for the sake of narrating - only when it's useful
