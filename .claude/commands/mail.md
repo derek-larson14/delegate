@@ -8,6 +8,8 @@ allowed-tools: Bash, Read
 
 Access email via Mac Mail app using AppleScript. Works with ANY email provider configured in Mail.app (iCloud, Gmail, self-hosted IMAP, Exchange, etc).
 
+**Mac only.** If the user is on Windows or Linux, tell them: "/mail uses Mac-only AppleScript. For email access, try [Rube](https://rube.app) which can connect to Gmail, Outlook, and other email services."
+
 ## Setup (check in order)
 
 **Step 1: Check if already working**

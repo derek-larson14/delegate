@@ -40,7 +40,17 @@ cp /tmp/ftb-update/feed-the-beast-main/.claude/commands/<name> .claude/commands/
 
 **For NEW files**: Read the new command file, explain what it does in plain terms (e.g., "/drive lets you browse and download files from Google Drive"), then copy it.
 
-### 3. Review script changes
+### 3. Review setup files
+
+If SETUP.command shows as NEW or CHANGED:
+```bash
+cp /tmp/ftb-update/feed-the-beast-main/SETUP.command ./SETUP.command
+chmod +x SETUP.command
+```
+
+Explain: "Added SETUP.command - double-click it in Finder to install Homebrew and tools for calendar, mail, and messaging commands."
+
+### 4. Review script changes
 
 For CHANGED scripts, show the diff:
 ```bash
@@ -56,13 +66,13 @@ chmod +x ops/scripts/<name>.sh
 
 For NEW scripts, describe what the script does, then copy it.
 
-### 4. Cleanup
+### 5. Cleanup
 
 ```bash
 rm -rf /tmp/ftb-update /tmp/ftb-update.zip
 ```
 
-### 5. Summary
+### 6. Summary
 
 End with a meaningful summary:
 - What new commands were added and what they do
