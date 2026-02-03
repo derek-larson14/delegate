@@ -20,9 +20,10 @@ From ["Feed the Beast: AI eats software."](https://dtlarson.com/feed-the-beast) 
 1. [Install Claude Code](https://claude.com/claude-code) ($20/month minimum)
 2. Download this folder (green button → Download ZIP)
 3. Unzip somewhere, rename, or move to where you prefer
-4. Open terminal, navigate to folder: `cd path/to/folder`
-5. Type `claude` and hit enter
-6. Run `/morning` or ask a question to test it works
+4. **Mac users:** Double-click `SETUP.command` to install tools for calendar, mail, and messages. Follow the prompts.
+5. Open terminal, navigate to folder: `cd path/to/folder`
+6. Type `claude` and hit enter
+7. Run `/morning` or ask a question to test it works
 
 ## Replace the Example Content
 
@@ -34,11 +35,21 @@ The folder has placeholder files:
 
 ## Using with Obsidian (Recommended)
 
+Obsidian pairs well with Claude Code because they both work on local files.
+
 1. [Download Obsidian](https://obsidian.md) (free)
 2. Open this folder as a vault (File → Open folder as vault)
 3. Trust plugins when prompted
 
-The repo includes pre-configured plugins. See [Claude Sidebar](https://github.com/derek-larson14/obsidian-claude-sidebar) to run Claude from Obsidian.
+Your workspace comes pre-configured with plugins. Install [Claude Sidebar](https://github.com/derek-larson14/obsidian-claude-sidebar) to run Claude directly from Obsidian.
+
+## Platform Notes
+
+Most commands work on Mac, Windows, and Linux. A few are Mac-only:
+- `/calendar` - Uses Mac Calendar app
+- `/mail` - Uses Mac Mail app
+
+Windows/Linux: Connect these via [Rube](https://rube.sh) instead.
 
 ## Customizing
 
