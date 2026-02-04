@@ -102,11 +102,19 @@ If folder exists but is empty after triggering download, tell user:
 
 ### 6. Check scheduled transcription script
 
-Check if the launchd job is set up:
+Check if the launchd job is set up or previously declined:
 
 ```bash
-launchctl list | grep -q "com.voicememos.transcribe" && echo "SCHEDULED" || echo "NOT_SCHEDULED"
+if launchctl list 2>/dev/null | grep -q "com.voicememos.transcribe"; then
+    echo "SCHEDULED"
+elif [ -f .voice-memos-no-schedule ]; then
+    echo "DECLINED"
+else
+    echo "NOT_SCHEDULED"
+fi
 ```
+
+**If "SCHEDULED" or "DECLINED"**, skip to Processing Flow.
 
 **If "NOT_SCHEDULED"**, offer to set it up:
 
@@ -156,6 +164,11 @@ launchctl load ~/Library/LaunchAgents/com.voicememos.transcribe.plist
 ```
 
 Tell user: "Automatic transcription is now set up. It runs on login and every 2 hours."
+
+**If they say no**, create a marker so we don't ask again:
+```bash
+touch .voice-memos-no-schedule
+```
 
 ## Processing Flow
 
