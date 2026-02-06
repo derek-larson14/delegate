@@ -32,7 +32,7 @@ fi
 # iCloud "optimizes" storage and won't download files until the app requests them
 echo "Triggering iCloud sync..."
 open -g "/System/Applications/VoiceMemos.app"
-sleep 8
+sleep 10
 
 # Close Voice Memos quietly
 osascript -e 'tell application "VoiceMemos" to quit' 2>/dev/null || true

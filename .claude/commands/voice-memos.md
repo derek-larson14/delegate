@@ -86,11 +86,11 @@ Then stop.
 
 ### 4. Trigger iCloud download
 
-iCloud "optimizes" storage - voice memos exist in the cloud but aren't downloaded until the app requests them. Open Voice Memos briefly to trigger download:
+iCloud "optimizes" storage - voice memos exist in the cloud but aren't downloaded until the app requests them. Open Voice Memos for 10 seconds to trigger download:
 
 ```bash
 open -g "/System/Applications/VoiceMemos.app"
-sleep 8
+sleep 10
 osascript -e 'tell application "VoiceMemos" to quit' 2>/dev/null || true
 ```
 
@@ -98,7 +98,17 @@ osascript -e 'tell application "VoiceMemos" to quit' 2>/dev/null || true
 
 If folder exists but is empty after triggering download, tell user:
 
-"No Voice Memos found. Make sure iCloud sync is on: Settings → [Your Name] → iCloud → Voice Memos"
+"No Voice Memos found. iCloud sync must be enabled for Voice Memos to appear on your Mac. To set this up:
+
+**On iPhone:**
+1. Open Settings → [Your Name] → iCloud → Apps Using iCloud → Show All
+2. Find Voice Memos and toggle it ON
+
+**On Mac:**
+1. Open System Settings → [Your Name] → iCloud → iCloud Drive → Options (or Apps Syncing to iCloud Drive)
+2. Make sure Voice Memos is checked
+
+After enabling, record a test memo on your iPhone, wait a minute, then run /voice-memos again."
 
 ### 6. Check scheduled transcription script
 
@@ -146,8 +156,17 @@ cat > ~/Library/LaunchAgents/com.voicememos.transcribe.plist << EOF
     </array>
     <key>RunAtLoad</key>
     <true/>
-    <key>StartInterval</key>
-    <integer>7200</integer>
+    <key>StartCalendarInterval</key>
+    <array>
+        <dict><key>Hour</key><integer>8</integer><key>Minute</key><integer>0</integer></dict>
+        <dict><key>Hour</key><integer>10</integer><key>Minute</key><integer>0</integer></dict>
+        <dict><key>Hour</key><integer>12</integer><key>Minute</key><integer>0</integer></dict>
+        <dict><key>Hour</key><integer>14</integer><key>Minute</key><integer>0</integer></dict>
+        <dict><key>Hour</key><integer>16</integer><key>Minute</key><integer>0</integer></dict>
+        <dict><key>Hour</key><integer>18</integer><key>Minute</key><integer>0</integer></dict>
+        <dict><key>Hour</key><integer>20</integer><key>Minute</key><integer>0</integer></dict>
+        <dict><key>Hour</key><integer>22</integer><key>Minute</key><integer>0</integer></dict>
+    </array>
     <key>StandardOutPath</key>
     <string>/tmp/voicememos-transcribe.out</string>
     <key>StandardErrorPath</key>
@@ -163,7 +182,7 @@ chmod +x "$VAULT_PATH/ops/scripts/voice-memos-transcribe.sh"
 launchctl load ~/Library/LaunchAgents/com.voicememos.transcribe.plist
 ```
 
-Tell user: "Automatic transcription is now set up. It runs on login and every 2 hours."
+Tell user: "Automatic transcription is now set up. It runs on login and every 2 hours (8am-10pm)."
 
 **If they say no**, create a marker so we don't ask again:
 ```bash
