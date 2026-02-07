@@ -2,8 +2,6 @@ const { Plugin, TFolder, TFile } = require('obsidian');
 
 module.exports = class ShowClaudePlugin extends Plugin {
     async onload() {
-        console.log('Loading show-claude-folder plugin');
-
         // Wait for workspace to be ready
         this.app.workspace.onLayoutReady(() => {
             // Small delay to ensure file explorer is fully initialized
@@ -18,6 +16,144 @@ module.exports = class ShowClaudePlugin extends Plugin {
                 this.showClaudeFolder();
             })
         );
+
+        // Poll for external changes (Claude Code, terminal, etc.)
+        // Obsidian doesn't watch dotfiles, so we check disk every 2s
+        // Only adds missing files and removes deleted ones — never tears down
+        // existing registrations (Obsidian handles its own renames/edits)
+        this.pollInterval = setInterval(() => {
+            this.syncExternalChanges();
+        }, 2000);
+    }
+
+    async syncExternalChanges() {
+        const vault = this.app.vault;
+        const adapter = vault.adapter;
+
+        try {
+            const exists = await adapter.exists('.claude');
+            if (!exists) return;
+
+            const claudeFolder = vault.getAbstractFileByPath('.claude');
+            if (!claudeFolder) {
+                // .claude not registered yet — do full registration
+                await this.showClaudeFolder();
+                return;
+            }
+
+            // Get what's on disk
+            const diskFiles = new Set();
+            await this.collectDiskPaths(adapter, '.claude', diskFiles);
+
+            // Get what's registered in vault
+            const vaultFiles = new Set();
+            this.collectVaultPaths(claudeFolder, vaultFiles);
+
+            // Find files on disk but not in vault (new external files)
+            let changed = false;
+            for (const path of diskFiles) {
+                if (!vault.fileMap[path]) {
+                    await this.registerFile(path);
+                    changed = true;
+                }
+            }
+
+            // Find files in vault but not on disk (externally deleted)
+            for (const path of vaultFiles) {
+                if (!diskFiles.has(path)) {
+                    this.unregisterFile(path);
+                    changed = true;
+                }
+            }
+
+            if (changed) {
+                this.forceFileExplorerRebuild();
+            }
+        } catch (e) {
+            // .claude might not exist yet
+        }
+    }
+
+    async collectDiskPaths(adapter, dirPath, paths) {
+        const list = await adapter.list(dirPath);
+        for (const f of list.files) paths.add(f);
+        for (const d of list.folders) {
+            paths.add(d);
+            await this.collectDiskPaths(adapter, d, paths);
+        }
+    }
+
+    collectVaultPaths(folder, paths) {
+        if (!folder || !folder.children) return;
+        for (const child of folder.children) {
+            if (!child || !child.path) continue;
+            paths.add(child.path);
+            if (child instanceof TFolder) {
+                this.collectVaultPaths(child, paths);
+            }
+        }
+    }
+
+    async registerFile(filePath) {
+        const vault = this.app.vault;
+        const adapter = vault.adapter;
+
+        // Find parent folder
+        const parentPath = filePath.substring(0, filePath.lastIndexOf('/'));
+        const parentFolder = vault.getAbstractFileByPath(parentPath);
+        if (!parentFolder) return;
+
+        const stat = await adapter.stat(filePath);
+        if (!stat) return;
+
+        if (stat.type === 'folder') {
+            const subfolder = new TFolder(vault, filePath);
+            subfolder.parent = parentFolder;
+            subfolder.vault = vault;
+            const parts = filePath.split('/');
+            subfolder.name = parts[parts.length - 1];
+
+            if (!parentFolder.children) parentFolder.children = [];
+            parentFolder.children.push(subfolder);
+            vault.fileMap[filePath] = subfolder;
+
+            // Load contents of new folder
+            await this.loadClaudeContents(subfolder);
+        } else {
+            const file = new TFile(vault, filePath);
+            file.parent = parentFolder;
+            file.vault = vault;
+            file.stat = stat;
+
+            const parts = filePath.split('/');
+            file.name = parts[parts.length - 1];
+            file.basename = file.name.replace(/\.[^/.]+$/, '');
+            file.extension = file.name.includes('.') ?
+                file.name.split('.').pop() : '';
+
+            if (!parentFolder.children) parentFolder.children = [];
+            parentFolder.children.push(file);
+            vault.fileMap[filePath] = file;
+        }
+    }
+
+    unregisterFile(filePath) {
+        const vault = this.app.vault;
+        const file = vault.fileMap[filePath];
+        if (!file) return;
+
+        // Remove from parent's children
+        if (file.parent && file.parent.children) {
+            const idx = file.parent.children.indexOf(file);
+            if (idx > -1) file.parent.children.splice(idx, 1);
+        }
+
+        // Remove from fileMap (recursively for folders)
+        if (file instanceof TFolder) {
+            this.removeFromFileMap(file);
+        } else {
+            delete vault.fileMap[filePath];
+        }
     }
 
     async showClaudeFolder() {
@@ -28,7 +164,6 @@ module.exports = class ShowClaudePlugin extends Plugin {
             // Check if .claude exists
             const exists = await adapter.exists('.claude');
             if (!exists) {
-                console.log('.claude folder does not exist');
                 return;
             }
 
@@ -39,8 +174,6 @@ module.exports = class ShowClaudePlugin extends Plugin {
             let claudeFolder = vault.getAbstractFileByPath('.claude');
 
             if (!claudeFolder) {
-                console.log('Creating .claude folder in vault registry');
-
                 // Create a TFolder instance for .claude
                 claudeFolder = new TFolder(vault, '.claude');
                 claudeFolder.parent = root;
@@ -63,11 +196,7 @@ module.exports = class ShowClaudePlugin extends Plugin {
 
                 // Force complete file explorer rebuild
                 this.forceFileExplorerRebuild();
-
-                console.log('.claude folder added to vault');
             } else {
-                console.log('.claude folder already exists in vault');
-
                 // Even if it exists, force a rebuild
                 this.forceFileExplorerRebuild();
             }
@@ -84,8 +213,6 @@ module.exports = class ShowClaudePlugin extends Plugin {
             const fileExplorer = leaf.view;
 
             if (fileExplorer) {
-                console.log('Found file explorer, forcing rebuild');
-
                 // Get the .claude folder
                 const claudeFolder = this.app.vault.getAbstractFileByPath('.claude');
 
@@ -141,8 +268,6 @@ module.exports = class ShowClaudePlugin extends Plugin {
 
                 // Recursively trigger for all children and subfolders
                 this.triggerCreateForAll(claudeFolder);
-
-                console.log('File explorer rebuild triggered');
             }
         }
     }
@@ -199,8 +324,6 @@ module.exports = class ShowClaudePlugin extends Plugin {
 
                     // Register in vault's fileMap
                     vault.fileMap[filePath] = file;
-
-                    console.log('Added file:', filePath, 'with name:', file.name);
                 }
             }
 
@@ -222,8 +345,6 @@ module.exports = class ShowClaudePlugin extends Plugin {
 
                     // Register in vault's fileMap
                     vault.fileMap[folderPath] = subfolder;
-
-                    console.log('Added folder:', folderPath, 'with name:', subfolder.name);
 
                     // Recursively load subfolder contents
                     await this.loadClaudeContents(subfolder);
@@ -248,7 +369,9 @@ module.exports = class ShowClaudePlugin extends Plugin {
     }
 
     onunload() {
-        console.log('Unloading show-claude-folder plugin');
+        if (this.pollInterval) {
+            clearInterval(this.pollInterval);
+        }
 
         // Clean up: remove .claude from vault
         const vault = this.app.vault;
