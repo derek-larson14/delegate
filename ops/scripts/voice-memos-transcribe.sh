@@ -10,8 +10,11 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 VAULT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 VOICE_MEMOS_DIR="$HOME/Library/Group Containers/group.com.apple.VoiceMemos.shared/Recordings"
-PROCESSED_FILE="$VAULT_ROOT/.voice-memos-processed"
+VOICE_DIR="$VAULT_ROOT/.voice"
+PROCESSED_FILE="$VOICE_DIR/memos-processed"
 VOICE_MD="$VAULT_ROOT/voice.md"
+
+mkdir -p "$VOICE_DIR"
 HEAR_PATH="$HOME/.local/bin/hear"
 
 # Check if hear is installed

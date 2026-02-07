@@ -14,10 +14,13 @@ VAULT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 DISPATCH_DIR="$HOME/Sync/dispatch"
 DRIVE_FOLDER="gdrive:dispatch"
+VOICE_DIR="$VAULT_ROOT/.voice"
 VOICE_MD="$VAULT_ROOT/voice.md"
-DOWNLOADED_FILE="$VAULT_ROOT/.dispatch-downloaded"
-PROCESSED_FILE="$VAULT_ROOT/.dispatch-processed"
-SYNC_FILE="$VAULT_ROOT/.dispatch-sync"
+DOWNLOADED_FILE="$VOICE_DIR/dispatch-downloaded"
+PROCESSED_FILE="$VOICE_DIR/dispatch-processed"
+SYNC_FILE="$VOICE_DIR/dispatch-sync"
+
+mkdir -p "$VOICE_DIR"
 
 # Find rclone
 RCLONE_PATH=$(which rclone 2>/dev/null || echo "$HOME/.local/bin/rclone")

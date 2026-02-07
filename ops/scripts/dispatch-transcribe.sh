@@ -21,9 +21,12 @@ if [ -z "$WORKSPACE" ] || [ ! -d "$WORKSPACE" ]; then
     exit 1
 fi
 
-DOWNLOADED_FILE="$WORKSPACE/.dispatch-downloaded"
-PROCESSED_FILE="$WORKSPACE/.dispatch-processed"
+VOICE_DIR="$WORKSPACE/.voice"
+DOWNLOADED_FILE="$VOICE_DIR/dispatch-downloaded"
+PROCESSED_FILE="$VOICE_DIR/dispatch-processed"
 VOICE_MD="$WORKSPACE/voice.md"
+
+mkdir -p "$VOICE_DIR"
 
 # Find hear
 HEAR_PATH=$(which hear 2>/dev/null || echo "$HOME/.local/bin/hear")

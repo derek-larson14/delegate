@@ -11,7 +11,7 @@ Transcribe voice recordings and add them to voice.md. Supports two sources: iPho
 
 Check if source is already configured:
 ```bash
-[ -f .voice-source ] && cat .voice-source || echo "NOT_SET"
+mkdir -p .voice && ([ -f .voice/source ] && cat .voice/source || echo "NOT_SET")
 ```
 
 **If "NOT_SET"**, use AskUserQuestion:
@@ -24,7 +24,7 @@ Options:
 
 Save their choice:
 ```bash
-echo "voicememos" > .voice-source   # or "drive"
+echo "voicememos" > .voice/source   # or "drive"
 ```
 
 ---
@@ -141,7 +141,7 @@ Check if the launchd job is set up or previously declined:
 ```bash
 if launchctl list 2>/dev/null | grep -q "com.voicememos.transcribe"; then
     echo "SCHEDULED"
-elif [ -f .voice-memos-no-schedule ]; then
+elif [ -f .voice/no-schedule ]; then
     echo "DECLINED"
 else
     echo "NOT_SCHEDULED"
@@ -210,7 +210,7 @@ Tell user: "Automatic transcription is now set up. It runs on login and every 2 
 
 **If they say no**, create a marker so we don't ask again:
 ```bash
-touch .voice-memos-no-schedule
+touch .voice/no-schedule
 ```
 
 ### Processing Flow (Voice Memos)
@@ -219,9 +219,9 @@ Once setup checks pass:
 
 #### 1. Detect first run vs. ongoing
 
-Check if `.voice-memos-processed` exists and has content:
+Check if `.voice/memos-processed` exists and has content:
 ```bash
-if [ -s .voice-memos-processed ]; then echo "ONGOING"; else echo "FIRST_RUN"; fi
+if [ -s .voice/memos-processed ]; then echo "ONGOING"; else echo "FIRST_RUN"; fi
 ```
 
 #### 2. First Run Flow
@@ -251,7 +251,7 @@ Based on their choice, determine which memos to process.
 
 Find memos not yet processed. For each file, check:
 ```bash
-grep -qxF "filename.m4a" .voice-memos-processed || echo "needs processing"
+grep -qxF "filename.m4a" .voice/memos-processed || echo "needs processing"
 ```
 
 If no new memos, tell user "No new voice memos to process." and stop.
@@ -282,7 +282,7 @@ Append to `voice.md`.
 #### 6. Mark as processed
 
 ```bash
-echo "$filename" >> .voice-memos-processed
+echo "$filename" >> .voice/memos-processed
 ```
 
 #### 7. Summary
@@ -352,15 +352,15 @@ launchctl load ~/Library/LaunchAgents/com.voicememos.transcribe.plist
 
 To re-process all voice memos:
 ```bash
-rm .voice-memos-processed
+rm .voice/memos-processed
 ```
 
 To re-process all dispatch recordings:
 ```bash
-rm .dispatch-processed .dispatch-downloaded .dispatch-sync
+rm .voice/dispatch-processed .voice/dispatch-downloaded .voice/dispatch-sync
 ```
 
 To change source:
 ```bash
-rm .voice-source
+rm .voice/source
 ```
