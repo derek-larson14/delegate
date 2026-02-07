@@ -1,15 +1,39 @@
 ---
-description: Transcribe Voice Memos from iPhone and process them
+description: Transcribe voice recordings from iPhone or Google Drive
 allowed-tools: Bash, Read, Write, Edit, Glob, Grep, AskUserQuestion
 ---
 
-# Voice Memos Processor
+# Voice Transcription
 
-Transcribe Voice Memos recorded on iPhone, then process them like regular voice notes.
+Transcribe voice recordings and add them to voice.md. Supports two sources: iPhone Voice Memos (via iCloud) and Google Drive (via Dispatch app).
 
-## Setup Checks (run silently, only message user if action needed)
+## Step 1: Determine source
 
-### 1. Check `hear` tool
+Check if source is already configured:
+```bash
+[ -f .voice-source ] && cat .voice-source || echo "NOT_SET"
+```
+
+**If "NOT_SET"**, use AskUserQuestion:
+
+"Where are your voice recordings?"
+
+Options:
+- "Voice Memos (iPhone → iCloud → Mac)"
+- "Google Drive (Dispatch app)"
+
+Save their choice:
+```bash
+echo "voicememos" > .voice-source   # or "drive"
+```
+
+---
+
+## Source: Voice Memos (iCloud)
+
+### Setup Checks (run silently, only message user if action needed)
+
+#### 1. Check `hear` tool
 
 ```bash
 which hear &>/dev/null && echo "READY"
@@ -29,7 +53,7 @@ Verify: `~/.local/bin/hear --version`
 
 If `which hear` still fails after install, tell user: "Restart your terminal or add ~/.local/bin to your PATH."
 
-### 2. Check Full Disk Access
+#### 2. Check Full Disk Access
 
 Voice Memos are stored in a protected location. Check access:
 
@@ -48,7 +72,7 @@ ls "$HOME/Library/Group Containers/group.com.apple.VoiceMemos.shared/Recordings"
 
 Then stop - don't proceed until they fix this.
 
-### 3. Check Speech Recognition permission
+#### 3. Check Speech Recognition permission
 
 ```bash
 osascript -l JavaScript -e '
@@ -84,7 +108,7 @@ Wait a few seconds, then re-check the status. If now `3`, proceed.
 
 Then stop.
 
-### 4. Trigger iCloud download
+#### 4. Trigger iCloud download
 
 iCloud "optimizes" storage - voice memos exist in the cloud but aren't downloaded until the app requests them. Open Voice Memos for 10 seconds to trigger download:
 
@@ -94,7 +118,7 @@ sleep 10
 osascript -e 'tell application "VoiceMemos" to quit' 2>/dev/null || true
 ```
 
-### 5. Check iCloud sync
+#### 5. Check iCloud sync
 
 If folder exists but is empty after triggering download, tell user:
 
@@ -110,7 +134,7 @@ If folder exists but is empty after triggering download, tell user:
 
 After enabling, record a test memo on your iPhone, wait a minute, then run /voice-memos again."
 
-### 6. Check scheduled transcription script
+#### 6. Check scheduled transcription script
 
 Check if the launchd job is set up or previously declined:
 
@@ -189,18 +213,18 @@ Tell user: "Automatic transcription is now set up. It runs on login and every 2 
 touch .voice-memos-no-schedule
 ```
 
-## Processing Flow
+### Processing Flow (Voice Memos)
 
 Once setup checks pass:
 
-### 1. Detect first run vs. ongoing
+#### 1. Detect first run vs. ongoing
 
 Check if `.voice-memos-processed` exists and has content:
 ```bash
 if [ -s .voice-memos-processed ]; then echo "ONGOING"; else echo "FIRST_RUN"; fi
 ```
 
-### 2. First Run Flow
+#### 2. First Run Flow
 
 If first run, show the user what exists and let them choose scope.
 
@@ -223,7 +247,7 @@ Based on their choice, determine which memos to process.
 
 **Important**: After processing their chosen scope, mark ALL older memos as processed too (so they don't get asked again).
 
-### 3. Ongoing Run Flow (not first run)
+#### 3. Ongoing Run Flow (not first run)
 
 Find memos not yet processed. For each file, check:
 ```bash
@@ -232,7 +256,7 @@ grep -qxF "filename.m4a" .voice-memos-processed || echo "needs processing"
 
 If no new memos, tell user "No new voice memos to process." and stop.
 
-### 4. Transcribe memos
+#### 4. Transcribe memos
 
 For each memo to process:
 ```bash
@@ -241,7 +265,7 @@ For each memo to process:
 
 The `-d` flag forces on-device recognition (avoids network hangs).
 
-### 5. Append to voice.md
+#### 5. Append to voice.md
 
 Extract timestamp from filename (format: `YYYYMMDD HHMMSS*.m4a`) to get human-readable date.
 
@@ -255,19 +279,49 @@ Jan 15 at 9:42 AM
 
 Append to `voice.md`.
 
-### 6. Mark as processed
+#### 6. Mark as processed
 
 ```bash
 echo "$filename" >> .voice-memos-processed
 ```
 
-### 7. Summary
+#### 7. Summary
 
 Tell user:
 - How many memos transcribed
 - Remind them: "Run /voice to route these notes to the right places."
 
-## Managing the Scheduled Job
+---
+
+## Source: Google Drive (Dispatch)
+
+Run the pull-dispatch script:
+
+```bash
+chmod +x ops/scripts/pull-dispatch.sh
+./ops/scripts/pull-dispatch.sh
+```
+
+This script handles two scenarios automatically:
+1. **Gemini transcript exists on Drive** (`dispatch-transcripts.md`): pulls new entries into `voice.md`
+2. **Raw audio only on Drive**: downloads `.m4a` files and transcribes locally with `hear`
+
+If it reports errors about rclone not being configured, help the user set it up:
+```bash
+# Install rclone if needed
+curl -sL https://raw.githubusercontent.com/derek-larson14/feed-the-beast/main/ops/scripts/setup-dispatch.sh | bash
+```
+
+Or just connect Drive manually:
+```bash
+rclone config create gdrive drive
+```
+
+After the script runs, tell user how many new entries were added and remind them: "Run /voice to route these notes to the right places."
+
+---
+
+## Managing Scheduled Jobs
 
 To check status:
 ```bash
@@ -289,12 +343,6 @@ To re-enable:
 launchctl load ~/Library/LaunchAgents/com.voicememos.transcribe.plist
 ```
 
-To remove completely:
-```bash
-launchctl unload ~/Library/LaunchAgents/com.voicememos.transcribe.plist
-rm ~/Library/LaunchAgents/com.voicememos.transcribe.plist
-```
-
 ## Edge Cases
 
 - **Transcription fails on a file**: Note which file, continue with others, report at end
@@ -302,7 +350,17 @@ rm ~/Library/LaunchAgents/com.voicememos.transcribe.plist
 
 ## Reset
 
-To re-process all memos:
+To re-process all voice memos:
 ```bash
 rm .voice-memos-processed
+```
+
+To re-process all dispatch recordings:
+```bash
+rm .dispatch-processed .dispatch-downloaded .dispatch-sync
+```
+
+To change source:
+```bash
+rm .voice-source
 ```
