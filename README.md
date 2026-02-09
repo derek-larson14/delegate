@@ -5,7 +5,7 @@ Text files and slash commands for running your life with Claude Code.
 - `/morning` - What to focus on today
 - `/weekly` - Review the week, plan what's next
 - `/voice` - Process voice notes into tasks, ideas, file edits
-- `/voice-setup` - Set up voice transcription (Mac only)
+- `/setup-transcription` - Set up voice transcription (Mac only)
 - `/meeting` - Ask questions about your meeting notes
 - `/messages` - Search messages across WhatsApp, iMessage, Slack, etc.
 - `/calendar` - Check schedule, find open time (Mac only)
@@ -50,7 +50,7 @@ Your workspace comes pre-configured with plugins. Install [Claude Sidebar](https
 Most commands work on Mac, Windows, and Linux. A few are Mac-only:
 - `/calendar` - Uses Mac Calendar app
 - `/mail` - Uses Mac Mail app
-- `/voice-setup` - Uses Apple Speech Recognition
+- `/setup-transcription` - Uses Apple Speech Recognition
 
 Windows/Linux: Connect these via [Rube](https://rube.sh) instead.
 

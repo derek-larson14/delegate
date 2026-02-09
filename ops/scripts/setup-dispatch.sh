@@ -161,7 +161,7 @@ else
     echo "[!] hear (Apple speech recognition) not installed"
     echo "    Re-run with --on-device to auto-install:"
     echo "    bash setup-dispatch.sh --on-device"
-    echo "    Or run /voice-setup in Claude Code"
+    echo "    Or run /setup-transcription in Claude Code"
 fi
 
 # Step 6: Download transcription script

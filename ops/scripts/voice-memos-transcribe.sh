@@ -1,7 +1,7 @@
 #!/bin/bash
 # Voice Memos Transcription (no Claude required)
 # Transcribes new iPhone voice memos to voice.md
-# Runs automatically via launchd - see /voice-setup for setup
+# Runs automatically via launchd - see /setup-transcription for setup
 
 set -e
 
@@ -20,7 +20,7 @@ HEAR_PATH="$HOME/.local/bin/hear"
 # Check if hear is installed
 if [ ! -f "$HEAR_PATH" ]; then
     echo "Error: hear not installed at $HEAR_PATH"
-    echo "Run /voice-setup once manually to install it"
+    echo "Run /setup-transcription once manually to install it"
     exit 1
 fi
 
