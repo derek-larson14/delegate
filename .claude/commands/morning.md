@@ -35,7 +35,7 @@ icalBuddy -f -eep notes -nc eventsToday 2>/dev/null
 Focus on: flagged/urgent emails, emails from people mentioned in tasks.
 
 **Recent activity:**
-- Check `logs/` for recent reviews
+- Check `ops/logs/` for recent reviews
 - Git log for what changed recently
 
 ## What to Surface

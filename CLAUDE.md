@@ -19,7 +19,7 @@ Context for Claude Code about this workspace.
 - `network.md` - Your network
 - `claude-scratch/` - Claude's working notes (research, analysis, thinking)
 - `.claude/commands/` - Slash commands
-- `logs/` - Review logs
+- `ops/logs/` - Review logs
 
 ## Delegation
 

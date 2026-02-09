@@ -82,5 +82,5 @@ The AI's role: help see the whole map, bring out the true story of the week, and
 
 After completing the review, update:
 1. **roadmap.md** (or planning file) - Move completed milestones, update targets, shift what needs adjustment
-2. **Create weekly review log** - Document this review for future reference (create a logs folder like `logs/weekly/YYYY-WW.md` and include what needs to get done by next week)
+2. **Create weekly review log** - Document this review for future reference (create a logs folder like `ops/logs/weekly/YYYY-WW.md` and include what needs to get done by next week)
 3. **CLAUDE.md** (if needed) - Update context for new projects or major shifts to file structures
