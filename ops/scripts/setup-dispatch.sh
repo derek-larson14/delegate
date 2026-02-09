@@ -3,11 +3,14 @@
 # Run from your workspace, or pass the workspace path as an argument.
 # Works via curl: bash <(curl -sL URL) ~/path/to/workspace
 #
+# Flags:
+#   --on-device, -d   Install 'hear' for on-device transcription
+#
 # What it does:
 # 1. Installs rclone (no Homebrew, no sudo)
 # 2. Connects your Google Drive
 # 3. Downloads the transcription script
-# 4. Schedules transcription every 2 hours via launchd
+# 4. Schedules transcription every hour via launchd
 #
 # After setup, recordings from Dispatch on your phone are
 # automatically transcribed and appended to voice.md.
@@ -22,12 +25,26 @@ PLIST_NAME="com.dispatch.transcribe"
 SETUP_URL="https://raw.githubusercontent.com/derek-larson14/feed-the-beast/main/ops/scripts/setup-dispatch.sh"
 TRANSCRIBE_URL="https://raw.githubusercontent.com/derek-larson14/feed-the-beast/main/ops/scripts/dispatch-transcribe.sh"
 
+# Parse flags
+ON_DEVICE=false
+POSITIONAL_ARGS=()
+for arg in "$@"; do
+    case $arg in
+        --on-device|-d)
+            ON_DEVICE=true
+            ;;
+        *)
+            POSITIONAL_ARGS+=("$arg")
+            ;;
+    esac
+done
+
 echo "=== Dispatch Pipeline Setup ==="
 echo ""
 
 # Detect workspace path
-if [ -n "$1" ]; then
-    WORKSPACE="$(cd "$1" && pwd)"
+if [ ${#POSITIONAL_ARGS[@]} -gt 0 ]; then
+    WORKSPACE="$(cd "${POSITIONAL_ARGS[0]}" && pwd)"
 elif [ -f "CLAUDE.md" ]; then
     WORKSPACE="$PWD"
 else
@@ -109,15 +126,42 @@ fi
 mkdir -p "$DISPATCH_DIR"
 echo "[ok] Local dispatch directory: $DISPATCH_DIR"
 
-# Step 5: Check hear installation
+# Step 5: Check hear installation (auto-install with --on-device flag)
 HEAR_PATH=$(which hear 2>/dev/null || echo "$HOME/.local/bin/hear")
 if [ -f "$HEAR_PATH" ]; then
     echo "[ok] hear found at $HEAR_PATH"
+elif [ "$ON_DEVICE" = true ]; then
+    echo ""
+    echo "[*] Installing hear (on-device speech recognition)..."
+    mkdir -p "$HOME/.local/bin"
+
+    HEAR_TMP=$(mktemp -d)
+    curl -sL "https://sveinbjorn.org/files/software/hear.zip" -o "$HEAR_TMP/hear.zip"
+
+    if [ ! -s "$HEAR_TMP/hear.zip" ]; then
+        echo "[!] Failed to download hear"
+        echo "    Install manually from https://sveinbjorn.org/hear"
+        rm -rf "$HEAR_TMP"
+    else
+        unzip -o "$HEAR_TMP/hear.zip" -d "$HEAR_TMP/hear"
+        HEAR_BIN=$(find "$HEAR_TMP/hear" -name "hear" -type f | head -1)
+        if [ -n "$HEAR_BIN" ]; then
+            cp "$HEAR_BIN" "$HOME/.local/bin/hear"
+            chmod +x "$HOME/.local/bin/hear"
+            HEAR_PATH="$HOME/.local/bin/hear"
+            echo "[ok] hear installed to $HEAR_PATH"
+        else
+            echo "[!] Could not find hear binary in downloaded archive"
+            echo "    Install manually from https://sveinbjorn.org/hear"
+        fi
+        rm -rf "$HEAR_TMP"
+    fi
 else
     echo ""
     echo "[!] hear (Apple speech recognition) not installed"
-    echo "    Run /voice-memos once in Claude Code — it installs hear for you"
-    echo "    The pipeline works once hear is available"
+    echo "    Re-run with --on-device to auto-install:"
+    echo "    bash setup-dispatch.sh --on-device"
+    echo "    Or run /voice-setup in Claude Code"
 fi
 
 # Step 6: Download transcription script
@@ -149,13 +193,22 @@ cat > "$PLIST_PATH" << PLIST
     <key>StartCalendarInterval</key>
     <array>
         <dict><key>Hour</key><integer>8</integer><key>Minute</key><integer>0</integer></dict>
+        <dict><key>Hour</key><integer>9</integer><key>Minute</key><integer>0</integer></dict>
         <dict><key>Hour</key><integer>10</integer><key>Minute</key><integer>0</integer></dict>
+        <dict><key>Hour</key><integer>11</integer><key>Minute</key><integer>0</integer></dict>
         <dict><key>Hour</key><integer>12</integer><key>Minute</key><integer>0</integer></dict>
+        <dict><key>Hour</key><integer>13</integer><key>Minute</key><integer>0</integer></dict>
         <dict><key>Hour</key><integer>14</integer><key>Minute</key><integer>0</integer></dict>
+        <dict><key>Hour</key><integer>15</integer><key>Minute</key><integer>0</integer></dict>
         <dict><key>Hour</key><integer>16</integer><key>Minute</key><integer>0</integer></dict>
+        <dict><key>Hour</key><integer>17</integer><key>Minute</key><integer>0</integer></dict>
         <dict><key>Hour</key><integer>18</integer><key>Minute</key><integer>0</integer></dict>
+        <dict><key>Hour</key><integer>19</integer><key>Minute</key><integer>0</integer></dict>
         <dict><key>Hour</key><integer>20</integer><key>Minute</key><integer>0</integer></dict>
+        <dict><key>Hour</key><integer>21</integer><key>Minute</key><integer>0</integer></dict>
         <dict><key>Hour</key><integer>22</integer><key>Minute</key><integer>0</integer></dict>
+        <dict><key>Hour</key><integer>23</integer><key>Minute</key><integer>0</integer></dict>
+        <dict><key>Hour</key><integer>0</integer><key>Minute</key><integer>0</integer></dict>
     </array>
     <key>StandardOutPath</key>
     <string>$DISPATCH_HOME/transcribe.log</string>
@@ -166,7 +219,7 @@ cat > "$PLIST_PATH" << PLIST
 PLIST
 
 launchctl load "$PLIST_PATH"
-echo "[ok] Scheduled transcription every 2 hours (8am–10pm)"
+echo "[ok] Scheduled transcription every hour (8am–midnight)"
 
 echo ""
 echo "=== Setup Complete ==="
@@ -174,7 +227,7 @@ echo ""
 echo "How it works:"
 echo "  1. Record on your phone with Dispatch"
 echo "  2. Recordings upload to Google Drive"
-echo "  3. Every 2 hours, your Mac pulls and transcribes them"
+echo "  3. Every hour, your Mac pulls and transcribes them"
 echo "  4. Transcriptions appear in $WORKSPACE/voice.md"
 echo ""
 echo "Run /voice in Claude Code to route transcripts to tasks and notes."

@@ -1,5 +1,5 @@
 ---
-description: Transcribe voice recordings from iPhone or Google Drive
+description: Set up voice transcription — iPhone Voice Memos or Google Drive (Dispatch)
 allowed-tools: Bash, Read, Write, Edit, Glob, Grep, AskUserQuestion
 ---
 
@@ -152,7 +152,7 @@ fi
 
 **If "NOT_SCHEDULED"**, offer to set it up:
 
-Ask the user: "Want to set up automatic transcription? It will run every 2 hours while your Mac is awake, transcribing new voice memos to voice.md automatically."
+Ask the user: "Want to set up automatic transcription? It will run every hour (8am–midnight) while your Mac is awake, transcribing new voice memos to voice.md automatically."
 
 Options: "Yes, set it up" / "No, I'll run manually"
 
@@ -183,13 +183,22 @@ cat > ~/Library/LaunchAgents/com.voicememos.transcribe.plist << EOF
     <key>StartCalendarInterval</key>
     <array>
         <dict><key>Hour</key><integer>8</integer><key>Minute</key><integer>0</integer></dict>
+        <dict><key>Hour</key><integer>9</integer><key>Minute</key><integer>0</integer></dict>
         <dict><key>Hour</key><integer>10</integer><key>Minute</key><integer>0</integer></dict>
+        <dict><key>Hour</key><integer>11</integer><key>Minute</key><integer>0</integer></dict>
         <dict><key>Hour</key><integer>12</integer><key>Minute</key><integer>0</integer></dict>
+        <dict><key>Hour</key><integer>13</integer><key>Minute</key><integer>0</integer></dict>
         <dict><key>Hour</key><integer>14</integer><key>Minute</key><integer>0</integer></dict>
+        <dict><key>Hour</key><integer>15</integer><key>Minute</key><integer>0</integer></dict>
         <dict><key>Hour</key><integer>16</integer><key>Minute</key><integer>0</integer></dict>
+        <dict><key>Hour</key><integer>17</integer><key>Minute</key><integer>0</integer></dict>
         <dict><key>Hour</key><integer>18</integer><key>Minute</key><integer>0</integer></dict>
+        <dict><key>Hour</key><integer>19</integer><key>Minute</key><integer>0</integer></dict>
         <dict><key>Hour</key><integer>20</integer><key>Minute</key><integer>0</integer></dict>
+        <dict><key>Hour</key><integer>21</integer><key>Minute</key><integer>0</integer></dict>
         <dict><key>Hour</key><integer>22</integer><key>Minute</key><integer>0</integer></dict>
+        <dict><key>Hour</key><integer>23</integer><key>Minute</key><integer>0</integer></dict>
+        <dict><key>Hour</key><integer>0</integer><key>Minute</key><integer>0</integer></dict>
     </array>
     <key>StandardOutPath</key>
     <string>/tmp/voicememos-transcribe.out</string>
@@ -206,7 +215,7 @@ chmod +x "$VAULT_PATH/ops/scripts/voice-memos-transcribe.sh"
 launchctl load ~/Library/LaunchAgents/com.voicememos.transcribe.plist
 ```
 
-Tell user: "Automatic transcription is now set up. It runs on login and every 2 hours (8am-10pm)."
+Tell user: "Automatic transcription is now set up. It runs on login and every hour (8am–midnight)."
 
 **If they say no**, create a marker so we don't ask again:
 ```bash

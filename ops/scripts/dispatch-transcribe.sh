@@ -32,7 +32,7 @@ mkdir -p "$VOICE_DIR"
 HEAR_PATH=$(which hear 2>/dev/null || echo "$HOME/.local/bin/hear")
 if [ ! -f "$HEAR_PATH" ]; then
     echo "Error: hear not installed at $HEAR_PATH"
-    echo "Run /voice-memos once in Claude Code to install it"
+    echo "Run /voice-setup once in Claude Code to install it"
     exit 1
 fi
 
