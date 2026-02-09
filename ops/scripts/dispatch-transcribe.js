@@ -2,7 +2,7 @@
  * Dispatch Transcription — Google Apps Script
  *
  * Watches a Google Drive folder for new .m4a recordings,
- * transcribes them with Gemini, and appends to a single file.
+ * transcribes them with Gemini, and saves each transcript as a companion .md file.
  *
  * Setup:
  * 1. Make a copy of this script (File → Make a copy)
@@ -37,9 +37,6 @@ const CONFIG = {
 
   // Folder name on Google Drive where Dispatch saves recordings
   DRIVE_FOLDER: 'dispatch',
-
-  // Output file — transcripts get appended here
-  OUTPUT_FILE: 'dispatch-transcripts.md',
 
   // Gemini model — auto-upgrades to latest flash
   MODEL: 'gemini-flash-latest',
@@ -106,7 +103,7 @@ function processNewRecordings() {
       const blob = downloadFile_(token, file.id);
       const transcript = transcribeWithGemini_(blob, file.mimeType);
       if (transcript) {
-        appendTranscript_(token, folderId, file.name, transcript);
+        saveTranscript_(token, folderId, file.name, transcript);
         processed.push(file.id);
         newCount++;
       }
@@ -239,24 +236,19 @@ function transcribeWithGemini_(blob, mimeType) {
 
 // --- Transcript Output ---
 
-function appendTranscript_(token, folderId, filename, transcript) {
-  const match = filename.match(/(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(\d{2})/);
-  let dateStr = new Date().toISOString().slice(0, 16).replace('T', ' ');
-  if (match) {
-    dateStr = match[1] + '-' + match[2] + '-' + match[3] + ' ' + match[4] + ':' + match[5];
-  }
+/**
+ * Save transcript as a companion .md file (same name as audio, .md extension).
+ * Matches the format used by Dispatch's on-device transcription,
+ * so the Mac-side script handles both sources the same way.
+ */
+function saveTranscript_(token, folderId, filename, transcript) {
+  const mdFilename = filename.replace(/\.m4a$/, '.md');
 
-  const entry = '\n## Dispatch - ' + dateStr + '\n\n' + transcript + '\n';
-
-  const existingId = findFileId_(token, folderId, CONFIG.OUTPUT_FILE);
+  const existingId = findFileId_(token, folderId, mdFilename);
 
   if (existingId) {
-    const existing = UrlFetchApp.fetch(DRIVE_API + '/files/' + existingId + '?alt=media', {
-      headers: { Authorization: 'Bearer ' + token }
-    }).getContentText();
-
-    updateFile_(token, existingId, existing + entry);
+    updateFile_(token, existingId, transcript);
   } else {
-    createFile_(token, folderId, CONFIG.OUTPUT_FILE, entry);
+    createFile_(token, folderId, mdFilename, transcript);
   }
 }

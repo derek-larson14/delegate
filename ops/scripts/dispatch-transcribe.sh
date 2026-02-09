@@ -1,6 +1,7 @@
 #!/bin/bash
 # Dispatch Transcription
-# Pulls recordings from Google Drive, transcribes with Apple speech recognition.
+# Pulls recordings from Google Drive, appends transcripts to voice.md
+# Uses on-device transcriptions (.md companion files) when available, falls back to hear
 # Runs on a schedule via launchd — set up by setup-dispatch.sh.
 # Config at ~/.dispatch/config (workspace path).
 
@@ -28,28 +29,24 @@ VOICE_MD="$WORKSPACE/voice.md"
 
 mkdir -p "$VOICE_DIR"
 
-# Find hear
+# Find tools (optional — hear only needed as fallback)
 HEAR_PATH=$(which hear 2>/dev/null || echo "$HOME/.local/bin/hear")
-if [ ! -f "$HEAR_PATH" ]; then
-    echo "Error: hear not installed at $HEAR_PATH"
-    echo "Run /voice-setup once in Claude Code to install it"
-    exit 1
-fi
-
-# Find rclone
 RCLONE_PATH=$(which rclone 2>/dev/null || echo "$HOME/.local/bin/rclone")
 
 mkdir -p "$DISPATCH_DIR"
 touch "$DOWNLOADED_FILE"
 touch "$PROCESSED_FILE"
 
-# Step 1: Pull new recordings from Google Drive
+# Step 1: Pull new files from Google Drive
 if [ -f "$RCLONE_PATH" ] && "$RCLONE_PATH" listremotes 2>/dev/null | grep -q "^gdrive:"; then
     echo "Checking Google Drive for new recordings..."
     "$RCLONE_PATH" lsf "$DRIVE_FOLDER" --include "*.m4a" 2>/dev/null | while read filename; do
         if ! grep -Fxq "$filename" "$DOWNLOADED_FILE" 2>/dev/null; then
             echo "Downloading: $filename"
             "$RCLONE_PATH" copy "$DRIVE_FOLDER/$filename" "$DISPATCH_DIR/"
+            # Pull companion transcript if it exists (on-device or Apps Script)
+            md_file="${filename%.m4a}.md"
+            "$RCLONE_PATH" copy "$DRIVE_FOLDER/$md_file" "$DISPATCH_DIR/" 2>/dev/null || true
             echo "$filename" >> "$DOWNLOADED_FILE"
         fi
     done
@@ -57,7 +54,7 @@ else
     echo "rclone not configured — skipping Drive pull"
 fi
 
-# Step 2: Transcribe new files
+# Step 2: Process new audio files
 new_count=0
 while IFS= read -r -d '' memo; do
     filename=$(basename "$memo")
@@ -66,11 +63,27 @@ while IFS= read -r -d '' memo; do
         continue
     fi
 
-    echo "Transcribing: $filename"
+    # Check for companion transcript (on-device or Apps Script transcription)
+    md_file="$DISPATCH_DIR/${filename%.m4a}.md"
 
-    created=$(stat -f "%Sm" -t "%Y-%m-%d %H:%M" "$memo")
+    if [ -f "$md_file" ]; then
+        echo "Using transcript: $filename"
+        transcript=$(cat "$md_file")
+    elif [ -f "$HEAR_PATH" ]; then
+        echo "Transcribing with hear: $filename"
+        transcript=$("$HEAR_PATH" -d -i "$memo" 2>/dev/null || echo "[transcription failed]")
+    else
+        echo "Skipping $filename — no transcript and hear not installed"
+        continue
+    fi
 
-    transcript=$("$HEAR_PATH" -d -i "$memo" 2>/dev/null || echo "[transcription failed]")
+    # Parse date from filename: dispatch_YYYYMMDD_HHMMSS.m4a
+    date_part=$(echo "$filename" | grep -oE '[0-9]{8}_[0-9]{6}' || echo "")
+    if [ -n "$date_part" ]; then
+        created="${date_part:0:4}-${date_part:4:2}-${date_part:6:2} ${date_part:9:2}:${date_part:11:2}"
+    else
+        created=$(stat -f "%Sm" -t "%Y-%m-%d %H:%M" "$memo")
+    fi
 
     {
         echo ""
@@ -81,12 +94,11 @@ while IFS= read -r -d '' memo; do
     } >> "$VOICE_MD"
 
     echo "$filename" >> "$PROCESSED_FILE"
-
     ((new_count++))
 done < <(find "$DISPATCH_DIR" -name "*.m4a" -print0 2>/dev/null)
 
 if [ $new_count -gt 0 ]; then
-    echo "Transcribed $new_count new memo(s)"
+    echo "Processed $new_count new memo(s)"
 else
-    echo "No new memos to transcribe"
+    echo "No new memos to process"
 fi
