@@ -12,6 +12,7 @@ Text files and slash commands for running your life with Claude Code.
 - `/mail` - Read and search email (Mac only)
 - `/drive` - Browse, search, download from Google Drive
 - `/editors` - Multiple AI reviewers critique your writing in parallel
+- `/delegate` - Hand off tasks to Claude
 - `/push` - Auto-commit and push changes
 
 From ["Feed the Beast: AI eats software."](https://dtlarson.com/feed-the-beast) Learn more at [Delegate with Claude](https://delegatewithclaude.com).
