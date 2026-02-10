@@ -1,7 +1,7 @@
 ---
 description: Process delegation.md — review Claude's task queue, propose actions, execute with confirmation
 model: opus
-allowed-tools: Read, Grep, Glob, Edit, Write, Bash, AskUserQuestion
+allowed-tools: Read, Grep, Glob, Edit, Write, AskUserQuestion, WebFetch, WebSearch
 ---
 
 ## Understand the landscape
