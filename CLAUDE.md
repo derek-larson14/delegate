@@ -17,7 +17,9 @@ Context for Claude Code about this workspace.
 - `roadmap.md` - Goals and milestones
 - `outreach.md` - Outreach tracking
 - `network.md` - Your network
-- `claude-scratch/` - Claude's working notes (research, analysis, thinking)
+- `scratch/` - Claude's working notes (research, analysis, thinking)
+- `archive/claude-completed.md` - Auto-archived delegation tasks (task-archiver plugin moves checked items here)
+- `archive/archived-tasks.md` - Auto-archived user tasks
 - `.claude/commands/` - Slash commands
 - `ops/logs/` - Review logs
 

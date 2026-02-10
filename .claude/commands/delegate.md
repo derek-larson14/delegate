@@ -1,75 +1,61 @@
 ---
 description: Process delegation.md — review Claude's task queue, propose actions, execute with confirmation
-model: sonnet
+model: opus
 allowed-tools: Read, Grep, Glob, Edit, Write, Bash, AskUserQuestion
 ---
 
-# Delegation Queue Processor
+## Understand the landscape
 
-This command is how you and Claude build a working relationship. It's not a one-off task runner — it's a regular rhythm where Claude reviews what's on the plate, proposes what to take on, and gets to work.
+Read `delegation.md` (Claude's task queue — the primary input). Then read `tasks.md` and `roadmap.md` to understand what the user is focused on. Look at git diff and recent commits to see the arc of recent progress. Scan linked files or project folders if tasks reference them. Process items top to bottom. Finish all context-gathering before doing anything.
 
-## Phase 1: Understand the Landscape
+If `delegation.md` is empty, say so.
 
-Read `delegation.md` (Claude's task queue — the primary input). Then read `tasks.md` and `roadmap.md` for context on what the user is focused on. Scan linked files or project folders if tasks reference them. Process items from top to bottom. Finish all context-gathering before proposing anything.
+## Do the work
 
-If `delegation.md` is empty or doesn't exist, let the user know and suggest they add tasks.
+**Use subagents for independent tasks.** If three things don't depend on each other, run them in parallel.
 
-## Phase 2: Propose a Plan
+For each task, figure out who should handle it:
 
-For each task in the queue, classify it:
+**You handle:** Research, code, file organization, data analysis, setup, prototyping, summarization, exploration. If a task references a repo or codebase, go read it. Do the actual work — don't leave "figure out X" or "you should look into Y" as output. If a task says research something, come back with the answer, not a plan to find the answer.
 
-**Claude should handle:** Research, code/scripts, file organization, data analysis, setup, prototyping, list generation, summarization, refactoring, exploration.
+**Leave for the user:** Decisions, relationship messages, outreach, pricing, strategy, writing first drafts — anything that needs their voice or judgment. Add context that makes it easier for them to act, but don't create busywork.
 
-**User should handle:** Decisions, relationship messages, outreach, pricing, strategy, writing first drafts, anything that requires their judgment or voice.
+When a task mixes both (research + decision, for example), complete the research and frame the decision clearly.
 
-Present a clear plan using AskUserQuestion:
+**Completing tasks:** Mark finished items in delegation.md with `- [x] task — what was done, where output lives`. The task-archiver plugin watches this file and auto-archives checked items to `archive/claude-completed.md` with date headers.
 
-```
-Here's what I found in your delegation queue:
+**Working notes:** If a task generates thinking worth keeping, put it in `scratch/YYYY-MM/[slug].md` (current month). These are notes and connections — not polished documents nobody asked for. Avoid creating documentation for the sake of documentation.
 
-## I'll take these on:
-- [task] — [what I plan to do]
-- [task] — [what I plan to do]
+**When something could go bigger:** Some tasks, once you dig in, reveal something worth real investment. Flag these — "This one seems close to ready, want me to go deeper?" — but don't assume the answer is yes.
 
-## These need you:
-- [task] — [why: needs your decision / voice / judgment]
+## Quality bar
 
-## Questions before I start:
-- [anything ambiguous]
+For every item you surface: would a good assistant mention this, or would your most valuable employee just take this direction on, or is it noise? Act accordingly.
 
-Should I proceed? (Or tell me to adjust.)
-```
-
-Wait for confirmation before executing. Don't assume — get the go-ahead.
-
-**YOLO mode:** If the user says "YOLO" or "just do it," skip confirmation and execute everything Claude can handle autonomously. Report results at the end instead of asking permission upfront.
-
-## Phase 3: Execute
-
-Work through confirmed tasks. For each one:
-- Do the actual work (don't leave "figure out X" as output — do the figuring)
-- Mark completed items in delegation.md: `- [x] task description — what was done`
-- If a task mixes research + decision, complete the research and frame the decision clearly for the user
-
-For tasks that need the user: add context that helps them act, but don't create busywork.
-
-## Phase 4: Report
+## Report
 
 ```
 ## Completed
-- [x] [task] — [what was done, where output lives]
+- [x] [task] — [what was done]
 
 ## Needs You
 - [ ] [task] — [context added, ready for your call]
+
+## Connections Noticed
+- [Ideas that relate across files]
+- [Things already partially implemented]
+- [Patterns worth consolidating]
 
 ## Questions
 - [Anything that came up during execution]
 ```
 
+The goal: you glance at this and know exactly what needs your attention.
+
 ## Guardrails
 
-- Never send messages on behalf of the user
-- Never delete files without asking
-- Never commit/push without review
-- If something doesn't make sense, say so — don't just execute blindly
-- When in doubt, ask
+Never send messages on behalf of the user. Never commit without review. Never delete files.
+
+Push back on anything incoherent. If something doesn't make sense, say so.
+
+**YOLO mode:** If the user says "YOLO" or "just do it," skip confirmation and execute everything autonomously. Report results at the end.

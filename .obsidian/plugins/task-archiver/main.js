@@ -1,8 +1,10 @@
 const { Plugin, PluginSettingTab, Setting } = require('obsidian');
 
 const DEFAULT_SETTINGS = {
-    taskFile: 'tasks.md',
-    archiveFile: 'archive/archived-tasks.md'
+    pairs: [
+        { taskFile: 'tasks.md', archiveFile: 'archive/archived-tasks.md' },
+        { taskFile: 'delegation.md', archiveFile: 'archive/claude-completed.md' }
+    ]
 };
 
 module.exports = class AutoArchivePlugin extends Plugin {
@@ -12,8 +14,9 @@ module.exports = class AutoArchivePlugin extends Plugin {
         // Listen for file modifications
         this.registerEvent(
             this.app.vault.on('modify', async (file) => {
-                if (file.path === this.settings.taskFile) {
-                    await this.checkForCompletedTasks(file);
+                const pair = this.settings.pairs.find(p => p.taskFile === file.path);
+                if (pair) {
+                    await this.checkForCompletedTasks(file, pair);
                 }
             })
         );
@@ -23,16 +26,30 @@ module.exports = class AutoArchivePlugin extends Plugin {
     }
 
     async loadSettings() {
-        this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+        const saved = await this.loadData();
+        if (saved && saved.pairs) {
+            this.settings = saved;
+        } else if (saved && saved.taskFile) {
+            // Migrate from old single-pair format
+            this.settings = {
+                pairs: [
+                    { taskFile: saved.taskFile, archiveFile: saved.archiveFile },
+                    { taskFile: 'delegation.md', archiveFile: 'archive/claude-completed.md' }
+                ]
+            };
+            await this.saveSettings();
+        } else {
+            this.settings = Object.assign({}, DEFAULT_SETTINGS);
+        }
     }
 
     async saveSettings() {
         await this.saveData(this.settings);
     }
 
-    async checkForCompletedTasks(file) {
-        // DON'T process the archive file itself!
-        if (file.path === this.settings.archiveFile) {
+    async checkForCompletedTasks(file, pair) {
+        // DON'T process any archive file
+        if (this.settings.pairs.some(p => p.archiveFile === file.path)) {
             return;
         }
 
@@ -54,7 +71,7 @@ module.exports = class AutoArchivePlugin extends Plugin {
 
         if (completedTasks.length > 0) {
             await this.app.vault.modify(file, remainingLines.join('\n'));
-            await this.archiveTasks(completedTasks);
+            await this.archiveTasks(completedTasks, pair.archiveFile);
         }
     }
 
@@ -107,8 +124,7 @@ module.exports = class AutoArchivePlugin extends Plugin {
         return cleanTask;
     }
 
-    async archiveTasks(tasks) {
-        const archiveFilePath = this.settings.archiveFile;
+    async archiveTasks(tasks, archiveFilePath) {
         const now = new Date();
         const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
@@ -132,16 +148,22 @@ module.exports = class AutoArchivePlugin extends Plugin {
         const headerIndex = lines.findIndex(line => line === todayHeader);
 
         if (headerIndex !== -1) {
-            // Header exists, find end of this day's section and append there
-            let insertIndex = headerIndex + 1;
-            while (insertIndex < lines.length && !lines[insertIndex].startsWith('## ')) {
-                insertIndex++;
-            }
-            // Insert before next header (or at end)
-            lines.splice(insertIndex, 0, ...tasks);
+            // Header exists, insert tasks right after the header (most recent at top)
+            lines.splice(headerIndex + 1, 0, ...tasks);
         } else {
-            // Header doesn't exist, add it with tasks at end
-            lines.push('', todayHeader, ...tasks);
+            // Header doesn't exist, add it at the top (after main heading)
+            let insertIndex = 0;
+            for (let i = 0; i < lines.length; i++) {
+                if (lines[i].startsWith('# ')) {
+                    insertIndex = i + 1;
+                    // Skip any blank lines after the main heading
+                    while (insertIndex < lines.length && lines[insertIndex].trim() === '') {
+                        insertIndex++;
+                    }
+                    break;
+                }
+            }
+            lines.splice(insertIndex, 0, todayHeader, ...tasks, '');
         }
 
         await this.app.vault.modify(archiveFile, lines.join('\n'));
@@ -160,26 +182,52 @@ class AutoArchiveSettingTab extends PluginSettingTab {
 
         containerEl.createEl('h2', { text: 'Auto Archive Tasks Settings' });
 
-        new Setting(containerEl)
-            .setName('Task file')
-            .setDesc('File to watch for completed tasks (e.g., tasks.md)')
-            .addText(text => text
-                .setPlaceholder('tasks.md')
-                .setValue(this.plugin.settings.taskFile)
-                .onChange(async (value) => {
-                    this.plugin.settings.taskFile = value;
-                    await this.plugin.saveSettings();
-                }));
+        this.plugin.settings.pairs.forEach((pair, index) => {
+            const pairHeader = new Setting(containerEl)
+                .setName(`Pair ${index + 1}`)
+                .setHeading();
+
+            if (this.plugin.settings.pairs.length > 1) {
+                pairHeader.addButton(btn => btn
+                    .setButtonText('Remove')
+                    .onClick(async () => {
+                        this.plugin.settings.pairs.splice(index, 1);
+                        await this.plugin.saveSettings();
+                        this.display();
+                    }));
+            }
+
+            new Setting(containerEl)
+                .setName('Task file')
+                .setDesc('File to watch for completed tasks')
+                .addText(text => text
+                    .setPlaceholder('tasks.md')
+                    .setValue(pair.taskFile)
+                    .onChange(async (value) => {
+                        this.plugin.settings.pairs[index].taskFile = value;
+                        await this.plugin.saveSettings();
+                    }));
+
+            new Setting(containerEl)
+                .setName('Archive file')
+                .setDesc('Where to move completed tasks')
+                .addText(text => text
+                    .setPlaceholder('archive/archived-tasks.md')
+                    .setValue(pair.archiveFile)
+                    .onChange(async (value) => {
+                        this.plugin.settings.pairs[index].archiveFile = value;
+                        await this.plugin.saveSettings();
+                    }));
+        });
 
         new Setting(containerEl)
-            .setName('Archive file')
-            .setDesc('Where to move completed tasks (e.g., archive/archived-tasks.md)')
-            .addText(text => text
-                .setPlaceholder('archive/archived-tasks.md')
-                .setValue(this.plugin.settings.archiveFile)
-                .onChange(async (value) => {
-                    this.plugin.settings.archiveFile = value;
+            .addButton(btn => btn
+                .setButtonText('Add pair')
+                .setCta()
+                .onClick(async () => {
+                    this.plugin.settings.pairs.push({ taskFile: '', archiveFile: '' });
                     await this.plugin.saveSettings();
+                    this.display();
                 }));
     }
 }
