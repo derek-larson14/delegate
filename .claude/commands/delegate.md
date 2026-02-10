@@ -57,5 +57,3 @@ The goal: you glance at this and know exactly what needs your attention.
 Never send messages on behalf of the user. Never commit without review. Never delete files.
 
 Push back on anything incoherent. If something doesn't make sense, say so.
-
-**YOLO mode:** If the user says "YOLO" or "just do it," skip confirmation and execute everything autonomously. Report results at the end.
