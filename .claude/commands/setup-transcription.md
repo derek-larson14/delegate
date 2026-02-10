@@ -305,21 +305,19 @@ Tell user:
 
 ## Source: Google Drive (Dispatch)
 
-Run the pull-dispatch script:
+Run the dispatch transcription script:
 
 ```bash
-chmod +x ops/scripts/pull-dispatch.sh
-./ops/scripts/pull-dispatch.sh
+chmod +x ops/scripts/dispatch-transcribe.sh
+./ops/scripts/dispatch-transcribe.sh
 ```
 
-This script handles two scenarios automatically:
-1. **Gemini transcript exists on Drive** (`dispatch-transcripts.md`): pulls new entries into `voice.md`
-2. **Raw audio only on Drive**: downloads `.m4a` files and transcribes locally with `hear`
+This script pulls `.m4a` recordings from Google Drive via rclone, along with companion `.md` transcript files (one per recording, created on-device or by Apps Script). If a companion transcript exists, it uses that; otherwise it falls back to local transcription with `hear`.
 
 If it reports errors about rclone not being configured, help the user set it up:
 ```bash
-# Install rclone if needed
-curl -sL https://raw.githubusercontent.com/derek-larson14/feed-the-beast/main/ops/scripts/setup-dispatch.sh | bash
+# Install rclone and configure Drive
+bash ops/scripts/setup-dispatch.sh
 ```
 
 Or just connect Drive manually:
@@ -367,7 +365,7 @@ rm .voice/memos-processed
 
 To re-process all dispatch recordings:
 ```bash
-rm .voice/dispatch-processed .voice/dispatch-downloaded .voice/dispatch-sync
+rm .voice/dispatch-processed .voice/dispatch-downloaded
 ```
 
 To change source:
