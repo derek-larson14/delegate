@@ -1,5 +1,6 @@
 ---
 description: Multi-perspective feedback on writing using reference library
+allowed-tools: Read, Grep, Glob
 ---
 
 I'm working on a piece of writing and want feedback from multiple angles.

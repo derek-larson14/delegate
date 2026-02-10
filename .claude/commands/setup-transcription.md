@@ -1,5 +1,6 @@
 ---
 description: Set up automatic transcription — iPhone Voice Memos or Google Drive (Dispatch)
+model: sonnet
 allowed-tools: Bash, Read, Write, Edit, Glob, Grep, AskUserQuestion
 ---
 

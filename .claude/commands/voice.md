@@ -1,5 +1,6 @@
 ---
 description: Process voice notes from voice.md and execute actions
+model: sonnet
 allowed-tools: Read, Edit, Glob, Grep, Write, AskUserQuestion
 ---
 

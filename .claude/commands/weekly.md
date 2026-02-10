@@ -1,5 +1,6 @@
 ---
 description: Weekly review as chief of staff
+allowed-tools: Bash, Read, Grep, Glob
 ---
 
 # Weekly Review
