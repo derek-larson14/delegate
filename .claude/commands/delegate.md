@@ -30,7 +30,7 @@ When a task mixes both (research + decision, for example), complete the research
 
 ## Quality bar
 
-For every item you surface: would a good assistant mention this, or would your most valuable employee just take this direction on, or is it noise? Act accordingly.
+For every item you surface: would a good assistant mention this, or is this a direction your most valuable employee would just take? If neither, it's noise.
 
 ## Report
 
