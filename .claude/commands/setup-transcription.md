@@ -347,10 +347,10 @@ Extract timestamp from filename (format: `YYYYMMDD HHMMSS*.m4a`) to get human-re
 
 Format:
 ```markdown
-Jan 15 at 9:42 AM
+## Memo - Jan 15 at 9:42 AM
+
 [transcription text]
 
----
 ```
 
 Append to `voice.md`.
@@ -395,26 +395,117 @@ After the script runs, tell user how many new entries were added and remind them
 
 ---
 
+## Auto-Routing (voice-auto)
+
+After transcription is set up (either source), offer to schedule automatic routing — this runs `/voice` to sort transcribed notes into the right files.
+
+Check if already set up or declined:
+
+```bash
+if launchctl list 2>/dev/null | grep -q "com.claude.voice-auto"; then
+    echo "SCHEDULED"
+elif [ -f .voice/no-auto-route ]; then
+    echo "DECLINED"
+else
+    echo "NOT_SCHEDULED"
+fi
+```
+
+**If "SCHEDULED" or "DECLINED"**, skip this section.
+
+**If "NOT_SCHEDULED"**, ask the user:
+
+"Want Claude to automatically route your voice notes? Every hour (30 minutes after transcription), Claude reads voice.md and sorts notes into tasks.md, delegation.md, and project files."
+
+Options: "Yes, set it up" / "No, I'll run /voice manually"
+
+**If they say yes**, create the launchd plist:
+
+```bash
+VAULT_PATH="$(pwd)"
+cat > ~/Library/LaunchAgents/com.claude.voice-auto.plist << EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.claude.voice-auto</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>${VAULT_PATH}/ops/scripts/scheduled/voice-auto.sh</string>
+    </array>
+    <key>StartCalendarInterval</key>
+    <array>
+        <dict><key>Hour</key><integer>8</integer><key>Minute</key><integer>30</integer></dict>
+        <dict><key>Hour</key><integer>9</integer><key>Minute</key><integer>30</integer></dict>
+        <dict><key>Hour</key><integer>10</integer><key>Minute</key><integer>30</integer></dict>
+        <dict><key>Hour</key><integer>11</integer><key>Minute</key><integer>30</integer></dict>
+        <dict><key>Hour</key><integer>12</integer><key>Minute</key><integer>30</integer></dict>
+        <dict><key>Hour</key><integer>13</integer><key>Minute</key><integer>30</integer></dict>
+        <dict><key>Hour</key><integer>14</integer><key>Minute</key><integer>30</integer></dict>
+        <dict><key>Hour</key><integer>15</integer><key>Minute</key><integer>30</integer></dict>
+        <dict><key>Hour</key><integer>16</integer><key>Minute</key><integer>30</integer></dict>
+        <dict><key>Hour</key><integer>17</integer><key>Minute</key><integer>30</integer></dict>
+        <dict><key>Hour</key><integer>18</integer><key>Minute</key><integer>30</integer></dict>
+        <dict><key>Hour</key><integer>19</integer><key>Minute</key><integer>30</integer></dict>
+        <dict><key>Hour</key><integer>20</integer><key>Minute</key><integer>30</integer></dict>
+        <dict><key>Hour</key><integer>21</integer><key>Minute</key><integer>30</integer></dict>
+        <dict><key>Hour</key><integer>22</integer><key>Minute</key><integer>30</integer></dict>
+        <dict><key>Hour</key><integer>23</integer><key>Minute</key><integer>30</integer></dict>
+        <dict><key>Hour</key><integer>0</integer><key>Minute</key><integer>30</integer></dict>
+    </array>
+    <key>StandardOutPath</key>
+    <string>/tmp/voice-auto.out</string>
+    <key>StandardErrorPath</key>
+    <string>/tmp/voice-auto.err</string>
+</dict>
+</plist>
+EOF
+```
+
+Make the script executable and load:
+```bash
+chmod +x "$VAULT_PATH/ops/scripts/scheduled/voice-auto.sh"
+launchctl load ~/Library/LaunchAgents/com.claude.voice-auto.plist
+```
+
+Tell user: "Auto-routing is set up. Claude will run `/voice` every hour at :30 (30 minutes after transcription). Check logs at `/tmp/voice-auto.out`."
+
+**If they say no**:
+```bash
+touch .voice/no-auto-route
+```
+
+---
+
 ## Managing Scheduled Jobs
 
 To check status:
 ```bash
-launchctl list | grep voicememos
+launchctl list | grep -E "voicememos|voice-auto|dispatch"
 ```
 
 To view logs:
 ```bash
 cat /tmp/voicememos-transcribe.out
+cat /tmp/voice-auto.out
 ```
 
-To disable:
+To disable transcription:
 ```bash
 launchctl unload ~/Library/LaunchAgents/com.voicememos.transcribe.plist
+```
+
+To disable auto-routing:
+```bash
+launchctl unload ~/Library/LaunchAgents/com.claude.voice-auto.plist
 ```
 
 To re-enable:
 ```bash
 launchctl load ~/Library/LaunchAgents/com.voicememos.transcribe.plist
+launchctl load ~/Library/LaunchAgents/com.claude.voice-auto.plist
 ```
 
 ## Edge Cases

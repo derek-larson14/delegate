@@ -89,10 +89,10 @@ while IFS= read -r -d '' memo; do
     # Append to voice.md
     {
         echo ""
-        echo "$created"
+        echo "## Memo - $created"
+        echo ""
         echo "$transcript"
         echo ""
-        echo "---"
     } >> "$VOICE_MD"
 
     # Mark as processed
