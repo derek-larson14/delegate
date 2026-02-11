@@ -7,7 +7,7 @@ set -e
 
 # Get the directory where this script lives, then find vault root
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-VAULT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+VAULT_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 
 VOICE_MEMOS_DIR="$HOME/Library/Group Containers/group.com.apple.VoiceMemos.shared/Recordings"
 VOICE_DIR="$VAULT_ROOT/.voice"
@@ -28,6 +28,20 @@ fi
 if [ ! -d "$VOICE_MEMOS_DIR" ]; then
     echo "Error: Voice Memos directory not found"
     echo "Make sure Voice Memos are synced via iCloud"
+    exit 1
+fi
+
+# Check if we can actually read the directory (TCC / Full Disk Access)
+# macOS silently returns empty results when /bin/bash lacks FDA
+file_count=$(ls -1 "$VOICE_MEMOS_DIR" 2>/dev/null | wc -l | tr -d ' ')
+if [ "$file_count" = "0" ]; then
+    echo "ERROR: Voice Memos directory exists but is unreadable (TCC blocked)."
+    echo "/bin/bash needs Full Disk Access to read Voice Memos from a scheduled job."
+    echo ""
+    echo "Fix: System Settings → Privacy & Security → Full Disk Access"
+    echo "  Click +, press Cmd+Shift+G, type /bin/bash, add it."
+    echo "  Then reload: launchctl unload ~/Library/LaunchAgents/com.voicememos.transcribe.plist"
+    echo "  Then:        launchctl load ~/Library/LaunchAgents/com.voicememos.transcribe.plist"
     exit 1
 fi
 

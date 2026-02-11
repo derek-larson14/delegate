@@ -56,7 +56,9 @@ If `which hear` still fails after install, tell user: "Restart your terminal or 
 
 #### 2. Check Full Disk Access
 
-Voice Memos are stored in a protected location. Check access:
+Voice Memos are stored in a macOS-protected location (`~/Library/Group Containers/`). The current process (Obsidian or Terminal) needs Full Disk Access for interactive transcription.
+
+Check access:
 
 ```bash
 ls "$HOME/Library/Group Containers/group.com.apple.VoiceMemos.shared/Recordings" &>/dev/null && echo "ACCESS OK" || echo "NO ACCESS"
@@ -69,7 +71,7 @@ ls "$HOME/Library/Group Containers/group.com.apple.VoiceMemos.shared/Recordings"
 1. Open System Settings → Privacy & Security → Full Disk Access
 2. Click the + button, find Obsidian (or Terminal) in Applications, add it
 3. Restart Obsidian (or Terminal)
-4. Run /voice-memos again"
+4. Run /setup-transcription again"
 
 Then stop - don't proceed until they fix this.
 
@@ -105,7 +107,7 @@ Wait a few seconds, then re-check the status. If now `3`, proceed.
 "Speech Recognition permission was denied. To fix:
 1. Open System Settings → Privacy & Security → Speech Recognition
 2. Find Obsidian and toggle it ON (or click + to add it)
-3. Run /voice-memos again"
+3. Run /setup-transcription again"
 
 Then stop.
 
@@ -133,9 +135,9 @@ If folder exists but is empty after triggering download, tell user:
 1. Open System Settings → [Your Name] → iCloud → iCloud Drive → Options (or Apps Syncing to iCloud Drive)
 2. Make sure Voice Memos is checked
 
-After enabling, record a test memo on your iPhone, wait a minute, then run /voice-memos again."
+After enabling, record a test memo on your iPhone, wait a minute, then run /setup-transcription again."
 
-#### 6. Check scheduled transcription script
+#### 6. Check scheduled transcription
 
 Check if the launchd job is set up or previously declined:
 
@@ -159,14 +161,63 @@ Options: "Yes, set it up" / "No, I'll run manually"
 
 **If they say yes**, install the scheduled job:
 
-First, get the vault path:
-```bash
-pwd
-```
+##### Build VoiceMemoSync.app
 
-Then create the launchd plist:
+macOS blocks `/bin/bash` from reading Voice Memos in scheduled jobs (TCC protection). We create a tiny app wrapper that gets its own Full Disk Access — targeted, not blanket.
+
 ```bash
 VAULT_PATH="$(pwd)"
+SYNC_APP="$HOME/.voicememos/VoiceMemoSync.app"
+mkdir -p "$SYNC_APP/Contents/MacOS"
+
+# Create Info.plist
+cat > "$SYNC_APP/Contents/Info.plist" << 'PLIST'
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleExecutable</key>
+    <string>sync</string>
+    <key>CFBundleIdentifier</key>
+    <string>com.voicememos.sync</string>
+    <key>CFBundleName</key>
+    <string>VoiceMemoSync</string>
+    <key>CFBundleVersion</key>
+    <string>1.0</string>
+    <key>LSBackgroundOnly</key>
+    <true/>
+</dict>
+</plist>
+PLIST
+
+# Compile Swift wrapper (swift is available on all Macs with Xcode CLT)
+cat > /tmp/voicememo-sync.swift << 'SWIFT'
+import Foundation
+let args = Array(CommandLine.arguments.dropFirst())
+guard !args.isEmpty else {
+    fputs("Usage: sync <script-path>\n", stderr)
+    exit(1)
+}
+let process = Process()
+process.executableURL = URL(fileURLWithPath: "/bin/bash")
+process.arguments = args
+try process.run()
+process.waitUntilExit()
+exit(process.terminationStatus)
+SWIFT
+
+swiftc -o "$SYNC_APP/Contents/MacOS/sync" /tmp/voicememo-sync.swift
+codesign --sign - --force "$SYNC_APP"
+rm /tmp/voicememo-sync.swift
+```
+
+If `swiftc` fails, tell user: "Swift compiler not found. Install Xcode Command Line Tools: `xcode-select --install`"
+
+##### Create the launchd plist
+
+```bash
+VAULT_PATH="$(pwd)"
+SYNC_BIN="$HOME/.voicememos/VoiceMemoSync.app/Contents/MacOS/sync"
 cat > ~/Library/LaunchAgents/com.voicememos.transcribe.plist << EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -176,8 +227,8 @@ cat > ~/Library/LaunchAgents/com.voicememos.transcribe.plist << EOF
     <string>com.voicememos.transcribe</string>
     <key>ProgramArguments</key>
     <array>
-        <string>/bin/bash</string>
-        <string>${VAULT_PATH}/ops/scripts/voice-memos-transcribe.sh</string>
+        <string>${SYNC_BIN}</string>
+        <string>${VAULT_PATH}/ops/scripts/scheduled/voice-memos-transcribe.sh</string>
     </array>
     <key>RunAtLoad</key>
     <true/>
@@ -212,11 +263,26 @@ EOF
 
 Make the script executable and load the job:
 ```bash
-chmod +x "$VAULT_PATH/ops/scripts/voice-memos-transcribe.sh"
+chmod +x "$VAULT_PATH/ops/scripts/scheduled/voice-memos-transcribe.sh"
 launchctl load ~/Library/LaunchAgents/com.voicememos.transcribe.plist
 ```
 
-Tell user: "Automatic transcription is now set up. It runs on login and every hour (8am–midnight)."
+##### Grant Full Disk Access to VoiceMemoSync
+
+Open Full Disk Access settings:
+```bash
+open "x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles"
+```
+
+Tell user:
+
+"One last step — grant Full Disk Access to VoiceMemoSync (this is a tiny app we just built, not blanket bash access):
+
+1. In the Full Disk Access window, click **+**
+2. Press **Cmd+Shift+G** and type `~/.voicememos/VoiceMemoSync.app`
+3. Add it and make sure the toggle is ON
+
+Automatic transcription is now set up. It runs on login and every hour (8am–midnight). Check logs at `/tmp/voicememos-transcribe.out`."
 
 **If they say no**, create a marker so we don't ask again:
 ```bash
@@ -308,8 +374,8 @@ Tell user:
 Run the dispatch transcription script:
 
 ```bash
-chmod +x ops/scripts/dispatch-transcribe.sh
-./ops/scripts/dispatch-transcribe.sh
+chmod +x ops/scripts/scheduled/dispatch-transcribe.sh
+./ops/scripts/scheduled/dispatch-transcribe.sh
 ```
 
 This script pulls `.m4a` recordings from Google Drive via rclone, along with companion `.md` transcript files (one per recording, created on-device or by Apps Script). If a companion transcript exists, it uses that; otherwise it falls back to local transcription with `hear`.
