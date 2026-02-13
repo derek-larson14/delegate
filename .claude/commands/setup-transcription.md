@@ -6,7 +6,20 @@ allowed-tools: Bash, Read, Write, Edit, Glob, Grep, AskUserQuestion
 
 # Voice Transcription
 
-Transcribe voice recordings and add them to voice.md. Supports two sources: iPhone Voice Memos (via iCloud) and Google Drive (via Dispatch app).
+Transcribe voice recordings and add them to voice.md. Supports two sources: iPhone Voice Memos (via iCloud, Mac only) and Google Drive (via Dispatch app, all platforms).
+
+## Step 0: Detect OS
+
+```bash
+uname -s 2>/dev/null || echo "Windows"
+```
+
+If the output contains "MINGW", "CYGWIN", "MSYS", or "Windows", this is a **Windows** environment. On Windows:
+- Voice Memos source is **not available** (iCloud/Voice Memos are Mac-only)
+- Auto-set source to "drive" (skip the source question)
+- Use PowerShell scripts (.ps1) instead of bash (.sh)
+- Use Task Scheduler instead of launchd
+- No local `hear` transcription — uses companion `.md` transcripts from Apps Script or Dispatch on-device
 
 ## Step 1: Determine source
 
@@ -15,7 +28,13 @@ Check if source is already configured:
 mkdir -p .voice && ([ -f .voice/source ] && cat .voice/source || echo "NOT_SET")
 ```
 
-**If "NOT_SET"**, use AskUserQuestion:
+**If Windows**: auto-set to "drive" without asking:
+```bash
+mkdir -p .voice && echo "drive" > .voice/source
+```
+Tell user: "On Windows, voice transcription uses Google Drive (Dispatch app). Voice Memos is Mac-only."
+
+**If macOS and "NOT_SET"**, use AskUserQuestion:
 
 "Where are your voice recordings?"
 
@@ -371,6 +390,8 @@ Tell user:
 
 ## Source: Google Drive (Dispatch)
 
+**macOS/Linux:**
+
 Run the dispatch transcription script:
 
 ```bash
@@ -391,6 +412,23 @@ Or just connect Drive manually:
 rclone config create gdrive drive
 ```
 
+**Windows:**
+
+Run the PowerShell dispatch transcription script:
+
+```bash
+powershell.exe -ExecutionPolicy Bypass -File ops/scripts/scheduled/dispatch-transcribe.ps1
+```
+
+This pulls `.m4a` recordings from Google Drive along with companion `.md` transcript files. On Windows, files without a companion `.md` transcript are skipped (no local `hear` tool). To get transcripts, set up one of:
+- **Apps Script (Gemini)**: delegatewithclaude.com/voice — cloud transcription, creates companion `.md` files in gdrive:dispatch
+- **Dispatch app on-device**: dispatch.newyorkai.org — transcribes on phone, uploads `.md` alongside audio
+
+If rclone not configured:
+```bash
+powershell.exe -ExecutionPolicy Bypass -File ops/scripts/setup-dispatch.ps1
+```
+
 After the script runs, tell user how many new entries were added and remind them: "Run /voice to route these notes to the right places."
 
 ---
@@ -401,6 +439,7 @@ After transcription is set up (either source), offer to schedule automatic routi
 
 Check if already set up or declined:
 
+**macOS/Linux:**
 ```bash
 if launchctl list 2>/dev/null | grep -q "com.claude.voice-auto"; then
     echo "SCHEDULED"
@@ -411,6 +450,11 @@ else
 fi
 ```
 
+**Windows:**
+```bash
+powershell.exe -Command "if (Get-ScheduledTask -TaskName 'VoiceAutoRoute' -ErrorAction SilentlyContinue) { 'SCHEDULED' } elseif (Test-Path '.voice/no-auto-route') { 'DECLINED' } else { 'NOT_SCHEDULED' }"
+```
+
 **If "SCHEDULED" or "DECLINED"**, skip this section.
 
 **If "NOT_SCHEDULED"**, ask the user:
@@ -419,7 +463,9 @@ fi
 
 Options: "Yes, set it up" / "No, I'll run /voice manually"
 
-**If they say yes**, create the launchd plist:
+**If they say yes:**
+
+**macOS/Linux** — create the launchd plist:
 
 ```bash
 VAULT_PATH="$(pwd)"
@@ -472,6 +518,22 @@ launchctl load ~/Library/LaunchAgents/com.claude.voice-auto.plist
 
 Tell user: "Auto-routing is set up. Claude will run `/voice` every hour at :30 (30 minutes after transcription). Check logs at `/tmp/voice-auto.out`."
 
+**Windows** — create a scheduled task:
+
+```bash
+powershell.exe -ExecutionPolicy Bypass -Command "
+$scriptPath = Join-Path (Get-Location) 'ops/scripts/scheduled/voice-auto.ps1'
+$existing = Get-ScheduledTask -TaskName 'VoiceAutoRoute' -ErrorAction SilentlyContinue
+if ($existing) { Unregister-ScheduledTask -TaskName 'VoiceAutoRoute' -Confirm:`$false }
+$action = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument \"-ExecutionPolicy Bypass -NoProfile -File `\"$scriptPath`\"\"
+$trigger = New-ScheduledTaskTrigger -Once -At '08:30AM' -RepetitionInterval (New-TimeSpan -Hours 1) -RepetitionDuration (New-TimeSpan -Hours 16)
+$settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable
+Register-ScheduledTask -TaskName 'VoiceAutoRoute' -Action $action -Trigger $trigger -Settings $settings -Description 'Claude voice auto-routing (runs hourly at :30)'
+"
+```
+
+Tell user: "Auto-routing is set up. Claude will run `/voice` every hour at :30 (30 minutes after transcription). Check Task Scheduler for 'VoiceAutoRoute'."
+
 **If they say no**:
 ```bash
 touch .voice/no-auto-route
@@ -480,6 +542,8 @@ touch .voice/no-auto-route
 ---
 
 ## Managing Scheduled Jobs
+
+### macOS/Linux
 
 To check status:
 ```bash
@@ -507,6 +571,25 @@ To re-enable:
 launchctl load ~/Library/LaunchAgents/com.voicememos.transcribe.plist
 launchctl load ~/Library/LaunchAgents/com.claude.voice-auto.plist
 ```
+
+### Windows
+
+To check status:
+```bash
+powershell.exe -Command "Get-ScheduledTask -TaskName 'DispatchTranscribe','VoiceAutoRoute' -ErrorAction SilentlyContinue | Format-Table TaskName,State"
+```
+
+To disable transcription:
+```bash
+powershell.exe -Command "Unregister-ScheduledTask -TaskName 'DispatchTranscribe' -Confirm:`$false"
+```
+
+To disable auto-routing:
+```bash
+powershell.exe -Command "Unregister-ScheduledTask -TaskName 'VoiceAutoRoute' -Confirm:`$false"
+```
+
+To re-enable, run `/setup-transcription` again.
 
 ## Edge Cases
 

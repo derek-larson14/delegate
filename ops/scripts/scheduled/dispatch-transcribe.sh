@@ -7,7 +7,8 @@
 
 CONFIG_FILE="$HOME/.dispatch/config"
 DISPATCH_DIR="$HOME/Sync/dispatch"
-DRIVE_FOLDER="gdrive:dispatch"
+DRIVE_AUDIO="gdrive:dispatch/audio"
+DRIVE_TRANSCRIPTS="gdrive:dispatch/transcripts"
 
 # Load workspace path
 if [ ! -f "$CONFIG_FILE" ]; then
@@ -40,13 +41,13 @@ touch "$PROCESSED_FILE"
 # Step 1: Pull new files from Google Drive
 if [ -f "$RCLONE_PATH" ] && "$RCLONE_PATH" listremotes 2>/dev/null | grep -q "^gdrive:"; then
     echo "Checking Google Drive for new recordings..."
-    "$RCLONE_PATH" lsf "$DRIVE_FOLDER" --include "*.m4a" 2>/dev/null | while read filename; do
+    "$RCLONE_PATH" lsf "$DRIVE_AUDIO" --include "*.m4a" 2>/dev/null | while read filename; do
         if ! grep -Fxq "$filename" "$DOWNLOADED_FILE" 2>/dev/null; then
             echo "Downloading: $filename"
-            "$RCLONE_PATH" copy "$DRIVE_FOLDER/$filename" "$DISPATCH_DIR/"
+            "$RCLONE_PATH" copy "$DRIVE_AUDIO/$filename" "$DISPATCH_DIR/"
             # Pull companion transcript if it exists (on-device or Apps Script)
             md_file="${filename%.m4a}.md"
-            "$RCLONE_PATH" copy "$DRIVE_FOLDER/$md_file" "$DISPATCH_DIR/" 2>/dev/null || true
+            "$RCLONE_PATH" copy "$DRIVE_TRANSCRIPTS/$md_file" "$DISPATCH_DIR/" 2>/dev/null || true
             echo "$filename" >> "$DOWNLOADED_FILE"
         fi
     done

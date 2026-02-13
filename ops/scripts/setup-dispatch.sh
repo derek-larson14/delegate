@@ -118,6 +118,16 @@ fi
 
 if "$RCLONE_PATH" lsd gdrive:dispatch 2>/dev/null; then
     echo "[ok] dispatch/ folder found on Drive"
+    if "$RCLONE_PATH" lsd gdrive:dispatch/audio 2>/dev/null; then
+        echo "[ok] dispatch/audio/ subfolder found"
+    else
+        echo "[*] dispatch/audio/ subfolder not found — it appears after your first recording"
+    fi
+    if "$RCLONE_PATH" lsd gdrive:dispatch/transcripts 2>/dev/null; then
+        echo "[ok] dispatch/transcripts/ subfolder found"
+    else
+        echo "[*] dispatch/transcripts/ subfolder not found — it appears after your first transcription"
+    fi
 else
     echo "[*] dispatch/ folder not on Drive yet — it appears after your first recording"
 fi

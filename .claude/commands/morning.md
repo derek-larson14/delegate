@@ -10,12 +10,14 @@ Prepare a morning brief. Be direct and concise.
 ## Check What's Available
 
 ```bash
-# Calendar (Mac)
+# Calendar (Mac-only — not available on Windows)
 which icalBuddy >/dev/null 2>&1 && echo "CALENDAR_OK" || echo "NO_CALENDAR"
 
-# Mail (Mac)
+# Mail (Mac-only — not available on Windows)
 [ -x ./ops/scripts/mail-cli.sh ] && echo "MAIL_OK" || echo "NO_MAIL"
 ```
+
+If `uname -s` fails or returns a Windows-like value (MINGW/CYGWIN/MSYS), calendar and mail are unavailable — skip those checks silently and note in the brief that /calendar and /mail are Mac-only. Everything else (tasks.md, roadmap.md, git log, ops/logs/) works cross-platform.
 
 ## Gather Context
 

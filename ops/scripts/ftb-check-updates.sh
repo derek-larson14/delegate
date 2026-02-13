@@ -1,10 +1,11 @@
 #!/bin/bash
 # Check for updates from feed-the-beast repo
-# Outputs: CHANGED, NEW, or LOCAL ONLY for each file
+# Compares local manifest.json against remote, then shows what changed
 
 set -e
 
 REPO_URL="https://github.com/derek-larson14/feed-the-beast/archive/main.zip"
+MANIFEST_URL="https://raw.githubusercontent.com/derek-larson14/feed-the-beast/main/manifest.json"
 TMP_ZIP="/tmp/ftb-update.zip"
 TMP_DIR="/tmp/ftb-update"
 EXTRACTED="$TMP_DIR/feed-the-beast-main"
@@ -12,8 +13,42 @@ EXTRACTED="$TMP_DIR/feed-the-beast-main"
 # Clean up any previous run
 rm -rf "$TMP_ZIP" "$TMP_DIR"
 
+# Check local manifest
+LOCAL_MANIFEST="manifest.json"
+if [[ -f "$LOCAL_MANIFEST" ]]; then
+    LOCAL_VERSION=$(grep '"version"' "$LOCAL_MANIFEST" | head -1 | sed 's/.*: *"\(.*\)".*/\1/')
+    LOCAL_CMD_VER=$(grep '"commands_version"' "$LOCAL_MANIFEST" | head -1 | sed 's/.*: *\([0-9]*\).*/\1/')
+    LOCAL_SCRIPT_VER=$(grep '"scripts_version"' "$LOCAL_MANIFEST" | head -1 | sed 's/.*: *\([0-9]*\).*/\1/')
+    echo "Local version: $LOCAL_VERSION (commands: $LOCAL_CMD_VER, scripts: $LOCAL_SCRIPT_VER)"
+else
+    echo "No local manifest.json found — first update will create one."
+    LOCAL_VERSION="none"
+    LOCAL_CMD_VER=0
+    LOCAL_SCRIPT_VER=0
+fi
+
+# Fetch remote manifest first (quick check)
+echo ""
+echo "Checking latest version..."
+REMOTE_MANIFEST=$(curl -sL "$MANIFEST_URL" 2>/dev/null || echo "")
+if [[ -z "$REMOTE_MANIFEST" ]]; then
+    echo "Could not fetch remote manifest. Falling back to full check."
+else
+    REMOTE_VERSION=$(echo "$REMOTE_MANIFEST" | grep '"version"' | head -1 | sed 's/.*: *"\(.*\)".*/\1/')
+    REMOTE_CMD_VER=$(echo "$REMOTE_MANIFEST" | grep '"commands_version"' | head -1 | sed 's/.*: *\([0-9]*\).*/\1/')
+    REMOTE_SCRIPT_VER=$(echo "$REMOTE_MANIFEST" | grep '"scripts_version"' | head -1 | sed 's/.*: *\([0-9]*\).*/\1/')
+    echo "Latest version: $REMOTE_VERSION (commands: $REMOTE_CMD_VER, scripts: $REMOTE_SCRIPT_VER)"
+
+    if [[ "$LOCAL_CMD_VER" == "$REMOTE_CMD_VER" && "$LOCAL_SCRIPT_VER" == "$REMOTE_SCRIPT_VER" ]]; then
+        echo ""
+        echo "Everything is up to date."
+        exit 0
+    fi
+    echo ""
+    echo "Updates available. Downloading..."
+fi
+
 # Download and extract
-echo "Downloading from feed-the-beast..."
 if ! curl -sL "$REPO_URL" -o "$TMP_ZIP"; then
     echo "ERROR: Failed to download. Check your connection."
     exit 1

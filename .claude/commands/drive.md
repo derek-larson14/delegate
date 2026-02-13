@@ -21,9 +21,11 @@ rclone listremotes 2>/dev/null | grep -q "^gdrive:" && echo "READY"
 **If not ready**, then handle setup:
 
 1. Check if rclone is installed: `which rclone`
-   - If not found, check if Homebrew exists: `which brew`
-   - If brew exists → run `brew install rclone` yourself
-   - If no brew → tell user: "rclone needs Homebrew. In Finder, open your workspace folder and double-click `SETUP.command` - it'll install Homebrew and the tools you need. Follow the prompts in the terminal window, then try `/drive` again."
+   - If not found, detect OS first: `uname -s 2>/dev/null || echo "Windows"`
+   - **macOS/Linux**: check if Homebrew exists: `which brew`
+     - If brew exists → run `brew install rclone` yourself
+     - If no brew → tell user: "rclone needs Homebrew. In Finder, open your workspace folder and double-click `SETUP.command` - it'll install Homebrew and the tools you need. Follow the prompts in the terminal window, then try `/drive` again."
+   - **Windows** (MINGW/CYGWIN/MSYS/Windows): tell user: "rclone not found. Run `.\SETUP.ps1` (right-click → Run with PowerShell) or install manually: `winget install Rclone.Rclone`"
 
 2. Check if the setup script exists. If not, download it:
 ```bash
