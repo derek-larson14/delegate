@@ -488,8 +488,6 @@ cat > ~/Library/LaunchAgents/com.claude.voice-auto.plist << EOF
         <string>/bin/bash</string>
         <string>${VAULT_PATH}/ops/scripts/scheduled/voice-auto.sh</string>
     </array>
-    <key>RunAtLoad</key>
-    <true/>
     <key>StartCalendarInterval</key>
     <array>
         <dict><key>Hour</key><integer>8</integer><key>Minute</key><integer>30</integer></dict>
