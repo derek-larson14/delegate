@@ -1,5 +1,6 @@
 ---
 description: Search and summarize meeting notes
+allowed-tools: Read, Glob, Grep
 ---
 
 User is asking about a meeting: $ARGUMENTS

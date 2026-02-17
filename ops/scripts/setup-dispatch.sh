@@ -200,6 +200,8 @@ cat > "$PLIST_PATH" << PLIST
         <string>/bin/bash</string>
         <string>$DISPATCH_HOME/dispatch-transcribe.sh</string>
     </array>
+    <key>RunAtLoad</key>
+    <true/>
     <key>StartCalendarInterval</key>
     <array>
         <dict><key>Hour</key><integer>8</integer><key>Minute</key><integer>0</integer></dict>
@@ -224,6 +226,13 @@ cat > "$PLIST_PATH" << PLIST
     <string>$DISPATCH_HOME/transcribe.log</string>
     <key>StandardErrorPath</key>
     <string>$DISPATCH_HOME/transcribe.log</string>
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$HOME/.local/bin</string>
+        <key>HOME</key>
+        <string>$HOME</string>
+    </dict>
 </dict>
 </plist>
 PLIST

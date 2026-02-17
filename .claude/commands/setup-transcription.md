@@ -275,6 +275,13 @@ cat > ~/Library/LaunchAgents/com.voicememos.transcribe.plist << EOF
     <string>/tmp/voicememos-transcribe.out</string>
     <key>StandardErrorPath</key>
     <string>/tmp/voicememos-transcribe.err</string>
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+        <key>HOME</key>
+        <string>${HOME}</string>
+    </dict>
 </dict>
 </plist>
 EOF
@@ -481,6 +488,8 @@ cat > ~/Library/LaunchAgents/com.claude.voice-auto.plist << EOF
         <string>/bin/bash</string>
         <string>${VAULT_PATH}/ops/scripts/scheduled/voice-auto.sh</string>
     </array>
+    <key>RunAtLoad</key>
+    <true/>
     <key>StartCalendarInterval</key>
     <array>
         <dict><key>Hour</key><integer>8</integer><key>Minute</key><integer>30</integer></dict>
@@ -505,6 +514,13 @@ cat > ~/Library/LaunchAgents/com.claude.voice-auto.plist << EOF
     <string>/tmp/voice-auto.out</string>
     <key>StandardErrorPath</key>
     <string>/tmp/voice-auto.err</string>
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+        <key>HOME</key>
+        <string>${HOME}</string>
+    </dict>
 </dict>
 </plist>
 EOF
