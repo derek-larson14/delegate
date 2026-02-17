@@ -1,16 +1,28 @@
 ---
-description: Multi-perspective feedback on writing using reference library
-allowed-tools: Read, Grep, Glob
+description: Multi-perspective feedback on writing (parallel execution)
+allowed-tools:
+  - Read, Grep, Glob
+  - TodoWrite
 ---
 
-I'm working on a piece of writing and want feedback from multiple angles.
+I'm working on a piece of writing and want feedback from multiple perspectives.
 
-First, scan `/reference/` and read the file names. Based on what I'm working on, decide which ones are relevant. When in doubt, include it - better to have more perspectives than miss something useful.
+First, scan these folders and identify all relevant context files:
+- `/reference/editors/` - writing craft resources
+- `/reference/advice/` - strategic and psychological frameworks
+- Root of `/reference/` for anything else useful
 
-Spin up a subagent for each relevant reference file. Each one reads their reference file, then reviews my target file. Ask each: what works, what sucks, what's missing, what should be explored further.
+For each context file, spin up a general-purpose subagent that reads:
+1. The context file
+2. My target file
 
-If there's a STYLE.md or CLAUDE.md in the project folder, that gets its own dedicated subagent - don't mix it with the others.
+USE OPUS FOR ALL SUBAGENTS
 
-After all agents return: read through their responses, where do they agree, where do they disagree? If everyone thinks something sucks or is great, that's a signal. The tensions are interesting too - if the storytelling agent loves a section but the copywriting agent hates it, that's worth exploring.
+Each agent should create specific recommendations for improving the piece based on their context lens. Quote actual lines when possible.
 
-When possible, quote specific lines, vs generalizing.
+Launch all agents in parallel.
+
+After all agents return:
+1. Pull out the most interesting ideas across the different agents, especially things that feel like they capture my energy
+2. synthesize patterns across all feedback. Where do multiple perspectives converge? Where do they conflict?
+3. What are the highest-leverage changes?
