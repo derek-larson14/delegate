@@ -22,8 +22,8 @@ RCLONE_DIR="$HOME/.local/bin"
 DISPATCH_DIR="$HOME/Sync/dispatch"
 PLIST_DIR="$HOME/Library/LaunchAgents"
 PLIST_NAME="com.dispatch.transcribe"
-SETUP_URL="https://raw.githubusercontent.com/derek-larson14/feed-the-beast/main/ops/scripts/setup-dispatch.sh"
-TRANSCRIBE_URL="https://raw.githubusercontent.com/derek-larson14/feed-the-beast/main/ops/scripts/dispatch-transcribe.sh"
+SETUP_URL="https://raw.githubusercontent.com/derek-larson14/delegate/main/ops/scripts/setup-dispatch.sh"
+TRANSCRIBE_URL="https://raw.githubusercontent.com/derek-larson14/delegate/main/ops/scripts/dispatch-transcribe.sh"
 
 # Parse flags
 ON_DEVICE=false

@@ -29,7 +29,7 @@ rclone listremotes 2>/dev/null | grep -q "^gdrive:" && echo "READY"
 
 2. Check if the setup script exists. If not, download it:
 ```bash
-mkdir -p ./ops/scripts && curl -sL https://raw.githubusercontent.com/derek-larson14/feed-the-beast/main/ops/scripts/setup-drive.sh -o ./ops/scripts/setup-drive.sh && chmod +x ./ops/scripts/setup-drive.sh
+mkdir -p ./ops/scripts && curl -sL https://raw.githubusercontent.com/derek-larson14/delegate/main/ops/scripts/setup-drive.sh -o ./ops/scripts/setup-drive.sh && chmod +x ./ops/scripts/setup-drive.sh
 ```
 
 3. Tell the user: "Google Drive isn't connected yet. I'll open your browser - just sign in and click Allow."

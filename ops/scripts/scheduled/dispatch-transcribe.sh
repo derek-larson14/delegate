@@ -5,6 +5,12 @@
 # Runs on a schedule via launchd — set up by setup-dispatch.sh.
 # Config at ~/.dispatch/config (workspace path).
 
+# Time guard: only run 7am–midnight (skip overnight if scheduled 24/7)
+hour=$(date +%H)
+if [ "$hour" -lt 7 ]; then
+    exit 0
+fi
+
 CONFIG_FILE="$HOME/.dispatch/config"
 DISPATCH_DIR="$HOME/Sync/dispatch"
 DRIVE_AUDIO="gdrive:dispatch/audio"

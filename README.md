@@ -1,4 +1,4 @@
-# Feed the Beast
+# Delegate
 
 Text files and slash commands for running your life with Claude Code.
 
@@ -15,7 +15,7 @@ Text files and slash commands for running your life with Claude Code.
 - `/delegate` - Hand off tasks to Claude
 - `/push` - Auto-commit and push changes
 
-From ["Feed the Beast: AI eats software."](https://dtlarson.com/feed-the-beast) Learn more at [Delegate with Claude](https://delegatewithclaude.com).
+Learn more at [Delegate with Claude](https://delegatewithclaude.com). Origin: ["Feed the Beast: AI eats software."](https://dtlarson.com/feed-the-beast). 
 
 ## Setup
 
@@ -31,6 +31,7 @@ From ["Feed the Beast: AI eats software."](https://dtlarson.com/feed-the-beast) 
 
 The folder has placeholder files:
 - `tasks.md` - Your tasks
+- `delegation.md` - Claude's task queue (run `/delegate` to process)
 - `roadmap.md` - Your goals and deadlines
 - `CLAUDE.md` - Context about your work
 - `voice.md` - Where voice notes land

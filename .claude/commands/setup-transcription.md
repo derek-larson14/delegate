@@ -41,11 +41,31 @@ Tell user: "On Windows, voice transcription uses Google Drive (Dispatch app). Vo
 Options:
 - "Voice Memos (iPhone → iCloud → Mac)"
 - "Google Drive (Dispatch app)"
+- "Local folder (iCloud Drive, Dropbox, or any folder path)"
 
 Save their choice:
 ```bash
-echo "voicememos" > .voice/source   # or "drive"
+echo "voicememos" > .voice/source   # or "drive" or "local"
 ```
+
+**If "local"**, ask for the folder path:
+
+Use AskUserQuestion: "What's the full path to your recordings folder?"
+
+Options:
+- "iCloud Drive (default Voice Memos path)"
+- "Dropbox"
+
+If they pick "iCloud Drive", use: `~/Library/Mobile Documents/iCloud~com~apple~VoiceMemos/Documents`
+If they pick "Dropbox", ask for their specific subfolder path.
+If they pick "Other", ask for the full path.
+
+Save the path:
+```bash
+echo "/path/to/recordings" > .voice/local-path
+```
+
+Then skip to **Source: Local Folder** section below.
 
 ---
 
@@ -438,11 +458,210 @@ powershell.exe -ExecutionPolicy Bypass -File ops/scripts/setup-dispatch.ps1
 
 After the script runs, tell user how many new entries were added and remind them: "Run /voice to route these notes to the right places."
 
+### Scheduled Dispatch Transcription (every 10 minutes)
+
+Check if already set up or declined:
+
+**macOS/Linux:**
+```bash
+if launchctl list 2>/dev/null | grep -q "com.dispatch.transcribe"; then
+    echo "SCHEDULED"
+elif [ -f .voice/no-dispatch-schedule ]; then
+    echo "DECLINED"
+else
+    echo "NOT_SCHEDULED"
+fi
+```
+
+**Windows:**
+```bash
+powershell.exe -Command "if (Get-ScheduledTask -TaskName 'DispatchTranscribe' -ErrorAction SilentlyContinue) { 'SCHEDULED' } elseif (Test-Path '.voice/no-dispatch-schedule') { 'DECLINED' } else { 'NOT_SCHEDULED' }"
+```
+
+**If "SCHEDULED" or "DECLINED"**, skip to Auto-Routing.
+
+**If "NOT_SCHEDULED"**, ask the user:
+
+"Want to set up automatic transcription from Google Drive? It will check for new recordings every 10 minutes (7am–midnight)."
+
+Options: "Yes, set it up" / "No, I'll run manually"
+
+**If they say yes:**
+
+**macOS/Linux** — create the launchd plist:
+
+```bash
+VAULT_PATH="$(pwd)"
+cat > ~/Library/LaunchAgents/com.dispatch.transcribe.plist << EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.dispatch.transcribe</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>${VAULT_PATH}/ops/scripts/scheduled/dispatch-transcribe.sh</string>
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>StartCalendarInterval</key>
+    <array>
+        <dict><key>Minute</key><integer>0</integer></dict>
+        <dict><key>Minute</key><integer>10</integer></dict>
+        <dict><key>Minute</key><integer>20</integer></dict>
+        <dict><key>Minute</key><integer>30</integer></dict>
+        <dict><key>Minute</key><integer>40</integer></dict>
+        <dict><key>Minute</key><integer>50</integer></dict>
+    </array>
+    <key>StandardOutPath</key>
+    <string>/tmp/dispatch-transcribe.out</string>
+    <key>StandardErrorPath</key>
+    <string>/tmp/dispatch-transcribe.err</string>
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+        <key>HOME</key>
+        <string>${HOME}</string>
+    </dict>
+</dict>
+</plist>
+EOF
+```
+
+Make the script executable and load:
+```bash
+chmod +x "$VAULT_PATH/ops/scripts/scheduled/dispatch-transcribe.sh"
+launchctl load ~/Library/LaunchAgents/com.dispatch.transcribe.plist
+```
+
+Tell user: "Dispatch transcription is set up. It checks Google Drive every 10 minutes (7am–midnight). Check logs at `/tmp/dispatch-transcribe.out`."
+
+**Windows** — create a scheduled task:
+
+```bash
+powershell.exe -ExecutionPolicy Bypass -Command "
+\$scriptPath = Join-Path (Get-Location) 'ops/scripts/scheduled/dispatch-transcribe.ps1'
+\$existing = Get-ScheduledTask -TaskName 'DispatchTranscribe' -ErrorAction SilentlyContinue
+if (\$existing) { Unregister-ScheduledTask -TaskName 'DispatchTranscribe' -Confirm:\$false }
+\$action = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument \`\"-ExecutionPolicy Bypass -NoProfile -File \`\"\$scriptPath\`\"\`\"
+\$trigger = New-ScheduledTaskTrigger -Once -At '07:00AM' -RepetitionInterval (New-TimeSpan -Minutes 10) -RepetitionDuration (New-TimeSpan -Hours 17)
+\$settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable
+Register-ScheduledTask -TaskName 'DispatchTranscribe' -Action \$action -Trigger \$trigger -Settings \$settings -Description 'Dispatch transcription (checks Drive every 10min, 7am-midnight)'
+"
+```
+
+Tell user: "Dispatch transcription is set up. It checks Google Drive every 10 minutes (7am–midnight). Check Task Scheduler for 'DispatchTranscribe'."
+
+**If they say no**:
+```bash
+touch .voice/no-dispatch-schedule
+```
+
+---
+
+## Source: Local Folder
+
+For users who sync recordings to a local folder (iCloud Drive, Dropbox, Obsidian Sync, etc.).
+
+### Setup Checks
+
+#### 1. Verify folder exists and has recordings
+
+```bash
+LOCAL_PATH=$(cat .voice/local-path 2>/dev/null)
+if [ -z "$LOCAL_PATH" ] || [ ! -d "$LOCAL_PATH" ]; then
+    echo "FOLDER_MISSING"
+else
+    find "$LOCAL_PATH" -maxdepth 2 -name "*.m4a" -type f 2>/dev/null | wc -l
+fi
+```
+
+**If "FOLDER_MISSING"**, tell user the path doesn't exist and ask them to check it.
+
+#### 2. Check `hear` tool (same as Voice Memos section)
+
+```bash
+which hear &>/dev/null && echo "READY"
+```
+
+If not ready, install it (same steps as Voice Memos section above).
+
+### Processing Flow (Local Folder)
+
+#### 1. Detect first run vs. ongoing
+
+```bash
+if [ -s .voice/local-processed ]; then echo "ONGOING"; else echo "FIRST_RUN"; fi
+```
+
+#### 2. First Run Flow
+
+Show count, ask how far back, mark older files as processed.
+
+```bash
+LOCAL_PATH=$(cat .voice/local-path)
+find "$LOCAL_PATH" -maxdepth 2 -name "*.m4a" -type f | wc -l
+```
+
+Use AskUserQuestion with options: "Last 5 memos" / "Last week" / "Last month" / "All of them"
+
+#### 3. Ongoing Run Flow
+
+Find recordings not yet processed:
+```bash
+LOCAL_PATH=$(cat .voice/local-path)
+find "$LOCAL_PATH" -maxdepth 2 -name "*.m4a" -type f | while read filepath; do
+    filename=$(basename "$filepath")
+    grep -qxF "$filename" .voice/local-processed || echo "$filepath"
+done
+```
+
+#### 4. Transcribe and append
+
+For each new recording, check for companion `.md` file first (same name, `.md` extension). If found, use it. Otherwise transcribe with `hear`:
+
+```bash
+~/.local/bin/hear -d -i "$filepath"
+```
+
+Append to voice.md:
+```markdown
+## Memo - [date from filename or file modification time]
+
+[transcription text]
+
+```
+
+#### 5. Mark as processed
+
+```bash
+echo "$filename" >> .voice/local-processed
+```
+
+#### 6. Summary
+
+Tell user how many memos transcribed and remind: "Run /voice to route these notes to the right places."
+
+### Reset
+
+To re-process all local folder recordings:
+```bash
+rm .voice/local-processed
+```
+
+To change local folder path:
+```bash
+rm .voice/local-path .voice/source
+```
+
 ---
 
 ## Auto-Routing (voice-auto)
 
-After transcription is set up (either source), offer to schedule automatic routing — this runs `/voice` to sort transcribed notes into the right files.
+After transcription is set up (any source), offer to schedule automatic routing — this runs `/voice` to sort transcribed notes into the right files.
 
 Check if already set up or declined:
 

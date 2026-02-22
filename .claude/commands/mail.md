@@ -33,7 +33,7 @@ macOS will also prompt on first use - click Allow.
 
 ```bash
 mkdir -p ./ops/scripts
-curl -sL https://raw.githubusercontent.com/derek-larson14/feed-the-beast/main/ops/scripts/mail-cli.sh -o ./ops/scripts/mail-cli.sh
+curl -sL https://raw.githubusercontent.com/derek-larson14/delegate/main/ops/scripts/mail-cli.sh -o ./ops/scripts/mail-cli.sh
 chmod +x ./ops/scripts/mail-cli.sh
 ```
 

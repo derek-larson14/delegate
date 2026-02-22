@@ -58,7 +58,7 @@ Then re-run status to confirm it works.
 **If script not found** → Download it first:
 ```bash
 mkdir -p ./ops/scripts
-curl -sL https://raw.githubusercontent.com/derek-larson14/feed-the-beast/main/ops/scripts/beeper-cli.sh -o ./ops/scripts/beeper-cli.sh
+curl -sL https://raw.githubusercontent.com/derek-larson14/delegate/main/ops/scripts/beeper-cli.sh -o ./ops/scripts/beeper-cli.sh
 chmod +x ./ops/scripts/beeper-cli.sh
 ```
 

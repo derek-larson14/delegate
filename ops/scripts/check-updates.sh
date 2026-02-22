@@ -1,14 +1,14 @@
 #!/bin/bash
-# Check for updates from feed-the-beast repo
+# Check for updates from delegate repo
 # Compares local manifest.json against remote, then shows what changed
 
 set -e
 
-REPO_URL="https://github.com/derek-larson14/feed-the-beast/archive/main.zip"
-MANIFEST_URL="https://raw.githubusercontent.com/derek-larson14/feed-the-beast/main/manifest.json"
-TMP_ZIP="/tmp/ftb-update.zip"
-TMP_DIR="/tmp/ftb-update"
-EXTRACTED="$TMP_DIR/feed-the-beast-main"
+REPO_URL="https://github.com/derek-larson14/delegate/archive/main.zip"
+MANIFEST_URL="https://raw.githubusercontent.com/derek-larson14/delegate/main/manifest.json"
+TMP_ZIP="/tmp/delegate-update.zip"
+TMP_DIR="/tmp/delegate-update"
+EXTRACTED="$TMP_DIR/delegate-main"
 
 # Clean up any previous run
 rm -rf "$TMP_ZIP" "$TMP_DIR"
@@ -137,7 +137,7 @@ if [[ -d "ops/scripts" ]]; then
         name=$(basename "$f")
 
         # Skip self
-        [[ "$name" == "ftb-check-updates.sh" ]] && continue
+        [[ "$name" == "check-updates.sh" ]] && continue
 
         if [[ ! -f "$EXTRACTED/ops/scripts/$name" ]]; then
             echo "LOCAL ONLY: $name"

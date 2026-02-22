@@ -23,7 +23,7 @@ $ErrorActionPreference = "Stop"
 
 $DispatchHome = Join-Path $env:USERPROFILE ".dispatch"
 $DispatchDir = Join-Path $env:USERPROFILE "Sync\dispatch"
-$TranscribeUrl = "https://raw.githubusercontent.com/derek-larson14/feed-the-beast/main/ops/scripts/scheduled/dispatch-transcribe.ps1"
+$TranscribeUrl = "https://raw.githubusercontent.com/derek-larson14/delegate/main/ops/scripts/scheduled/dispatch-transcribe.ps1"
 $TaskName = "DispatchTranscribe"
 
 Write-Host "=== Dispatch Pipeline Setup (Windows) ===" -ForegroundColor Cyan

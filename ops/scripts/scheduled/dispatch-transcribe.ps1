@@ -6,6 +6,10 @@
 # Runs on a schedule via Task Scheduler — set up by setup-dispatch.ps1
 # Config at $env:USERPROFILE\.dispatch\config (workspace path)
 
+# Time guard: only run 7am–midnight (skip overnight if scheduled 24/7)
+$hour = (Get-Date).Hour
+if ($hour -lt 7) { exit 0 }
+
 $ErrorActionPreference = "Stop"
 
 $ConfigFile = Join-Path $env:USERPROFILE ".dispatch\config"

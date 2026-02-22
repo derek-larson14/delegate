@@ -1,14 +1,14 @@
 #Requires -Version 5.1
-# Check for updates from feed-the-beast repo (Windows)
+# Check for updates from delegate repo (Windows)
 # Compares local manifest.json against remote, then shows what changed
 
 $ErrorActionPreference = "Stop"
 
-$RepoUrl = "https://github.com/derek-larson14/feed-the-beast/archive/main.zip"
-$ManifestUrl = "https://raw.githubusercontent.com/derek-larson14/feed-the-beast/main/manifest.json"
-$TmpZip = Join-Path $env:TEMP "ftb-update.zip"
-$TmpDir = Join-Path $env:TEMP "ftb-update"
-$Extracted = Join-Path $TmpDir "feed-the-beast-main"
+$RepoUrl = "https://github.com/derek-larson14/delegate/archive/main.zip"
+$ManifestUrl = "https://raw.githubusercontent.com/derek-larson14/delegate/main/manifest.json"
+$TmpZip = Join-Path $env:TEMP "delegate-update.zip"
+$TmpDir = Join-Path $env:TEMP "delegate-update"
+$Extracted = Join-Path $TmpDir "delegate-main"
 
 # Clean up any previous run
 if (Test-Path $TmpZip) { Remove-Item $TmpZip -Force }
@@ -169,7 +169,7 @@ if (Test-Path $upstreamScripts) {
 if (Test-Path "ops\scripts") {
     Get-ChildItem "ops\scripts" -File -Include "*.sh","*.ps1" | ForEach-Object {
         $name = $_.Name
-        if ($name -eq "ftb-check-updates.sh" -or $name -eq "ftb-check-updates.ps1") { return }
+        if ($name -eq "check-updates.sh" -or $name -eq "check-updates.ps1") { return }
 
         $upstream = Join-Path $upstreamScripts $name
         if (-not (Test-Path $upstream)) {
