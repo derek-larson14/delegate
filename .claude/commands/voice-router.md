@@ -1,5 +1,5 @@
 ---
-description: Process voice notes from voice.md and execute actions
+description: Process voice notes from voice.md and route them to the right places
 model: sonnet
 allowed-tools: Read, Edit, Glob, Grep, Write, AskUserQuestion
 ---
@@ -69,7 +69,7 @@ List each entry and what action was taken. Flag anything that needs follow-up.
 ## Constraints
 
 - **Preserve voice** — Clean up transcription errors but keep the user's words. No AI summaries.
-- **Append-only** — Only append to existing files. Don't modify existing content.
+- **Append-only** — Only append to existing files. Don't modify existing content. Add new tasks at the bottom of the list, not the top.
 - **No new files** — Route to existing files only.
 - **Capture everything** — Extract every sub-idea from each entry.
 - **Go deep before routing** — Read more files if you're unsure where something goes.

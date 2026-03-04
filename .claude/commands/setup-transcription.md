@@ -42,6 +42,19 @@ Options:
 - "Voice Memos (iPhone → iCloud → Mac)"
 - "Google Drive (Dispatch app)"
 - "Local folder (iCloud Drive, Dropbox, or any folder path)"
+- "Mac Shortcut (record directly on your Mac)"
+
+**If "Mac Shortcut"**, share this link and set up the folder:
+
+Tell the user: "Install the Dispatch Shortcut: https://www.icloud.com/shortcuts/22e8e56866aa48b59a84fccd19c9f013 — it records audio, transcribes on-device, and saves a transcript. On first run, pick your transcripts folder (default: ~/dispatch/transcripts/)."
+
+```bash
+mkdir -p ~/dispatch/transcripts
+echo "mac" > .voice/source
+echo "$HOME/dispatch/transcripts" > .voice/local-path
+```
+
+Then skip to the auto-routing section — no scheduled transcription needed since the Shortcut handles it on demand.
 
 Save their choice:
 ```bash
